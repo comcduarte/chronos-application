@@ -1,0 +1,12 @@
+[submodule "module\\Acl"]
+	path = module\\Acl
+	url = https://github.com/comcduarte/com-acl.git
+[submodule "module\\Components"]
+	path = module\\Components
+	url = https://github.com/comcduarte/com-ponents.git
+[submodule "module\\Settings"]
+	path = module\\Settings
+	url = https://github.com/comcduarte/com-settings.git
+[submodule "module\\User"]
+	path = module\\User
+	url = https://github.com/comcduarte/com-user.git
