@@ -1,9 +1,20 @@
 <?php
 use Laminas\Escaper\Escaper;
+use User\Model\UserModel;
 
-$navHelper = $this->navigation('navigation')
-    ->setAcl($this->acl)
-    ->setRole($this->role);
+$navHelper = $this->navigation('navigation');
+
+if ($user = $this->currentUser()) {
+    $roles = [];
+    $memberofs = $user->memberOf();
+    foreach ($memberofs as $memberof) {
+        $roles[] = $memberof['ROLENAME'];
+    }
+    $navHelper->setRoles($roles);
+}
+// $navHelper
+//     ->setAcl($this->acl)
+//     ->setRole('admin');
 $iterator = new RecursiveIteratorIterator($this->container, RecursiveIteratorIterator::SELF_FIRST);
 
 $ulClass = "navbar-nav mr-auto";
