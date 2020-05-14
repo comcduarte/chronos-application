@@ -10,3 +10,9 @@
 [submodule "module\\User"]
 	path = module\\User
 	url = https://github.com/comcduarte/com-user.git
+[submodule "module\\Employee"]
+	path = module\\Employee
+	url = https://github.com/comcduarte/com-employee.git
+[submodule "module\\Timecard"]
+	path = module\\Timecard
+	url = https://github.com/comcduarte/com-timecard.git
