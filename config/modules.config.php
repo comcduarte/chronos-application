@@ -31,4 +31,6 @@ return [
     'Components',
     'Settings',
     'User',
+    'Employee',
+    'Timecard',
 ];

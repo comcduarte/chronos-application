@@ -13,6 +13,8 @@ namespace Application;
 use Laminas\Router\Http\Literal;
 use Laminas\Router\Http\Segment;
 use Laminas\ServiceManager\Factory\InvokableFactory;
+use Application\Navigation\Factory\AclNavigationFactory;
+use Application\Controller\IndexController;
 
 return [
     'router' => [
@@ -39,9 +41,50 @@ return [
             ],
         ],
     ],
+    'acl' => [
+        'EVERYONE' => [
+            'home' => ['index'],
+        ],
+    ],
     'controllers' => [
         'factories' => [
-            Controller\IndexController::class => InvokableFactory::class,
+            IndexController::class => InvokableFactory::class,
+        ],
+    ],
+    'navigation' => [
+        'default' => [
+            [
+                'label' => 'Home',
+                'route' => 'home',
+                'order' => 0,
+            ],
+        ],
+        'test' => [
+            [
+                'label' => 'User',
+                'route' => 'home',
+                'order' => 0,
+            ],
+            [
+                'label' => 'Preparer',
+                'route' => 'home',
+                'order' => 0,
+            ],
+            [
+                'label' => 'Dept Head',
+                'route' => 'home',
+                'order' => 0,
+            ],
+            [
+                'label' => 'Payroll',
+                'route' => 'home',
+                'order' => 0,
+            ],
+            [
+                'label' => 'Admin',
+                'route' => 'home',
+                'order' => 0,
+            ],
         ],
     ],
     'view_manager' => [

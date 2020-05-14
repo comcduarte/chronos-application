@@ -31,7 +31,9 @@
 			"Acl\\" : "module/Acl/src",
 			"Components\\" : "module/Components/src",
 			"Settings\\" : "module/Settings/src",
-			"User\\" : "module/User/src"
+			"User\\" : "module/User/src",
+			"Employee\\" : "module/Employee/src",
+			"Timecard\\" : "module/Timecard/src"
 		}
 	},
 	"scripts" : {
