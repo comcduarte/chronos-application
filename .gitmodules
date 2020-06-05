@@ -16,3 +16,6 @@
 [submodule "module\\Timecard"]
 	path = module\\Timecard
 	url = https://github.com/comcduarte/com-timecard.git
+[submodule "module\\Report"]
+	path = module\\Report
+	url = https://github.com/comcduarte/com-report.git

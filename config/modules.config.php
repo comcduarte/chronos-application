@@ -33,4 +33,5 @@ return [
     'User',
     'Employee',
     'Timecard',
+    'Report',
 ];

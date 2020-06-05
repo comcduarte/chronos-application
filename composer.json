@@ -33,7 +33,8 @@
 			"Settings\\" : "module/Settings/src",
 			"User\\" : "module/User/src",
 			"Employee\\" : "module/Employee/src",
-			"Timecard\\" : "module/Timecard/src"
+			"Timecard\\" : "module/Timecard/src",
+			"Report\\" : "module/Report/src"
 		}
 	},
 	"scripts" : {
