@@ -34,4 +34,5 @@ return [
     'Employee',
     'Timecard',
     'Report',
+    'Annotation',
 ];
