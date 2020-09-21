@@ -77,7 +77,7 @@ $this->doctype()
             <?= $this->content ?>
             <hr>
             <footer id="footer">
-                &copy; <?= date('Y') ?> by City of Middletown, Connecticut. All rights reserved. <?= \Application\Module::VERSION ?>
+                &copy; <?= date('Y') ?> by City of Middletown, Connecticut. All rights reserved. <?= sprintf('%s-%s',\Application\Module::VERSION,substr($_SERVER['SERVER_ADDR'], 8)) ?>
             </footer>
         </div>
         <?= $this->inlineScript() 

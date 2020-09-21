@@ -2,24 +2,15 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
-## 1.0.0 - TBD
-
+## 0.0.2 - 2020-09-21
 ### Added
+- Category to Paycode
+- Blue Sheet Report for Department Preparer
+- Backend Server identifier to layout footer
 
-- Nothing.
+## 0.0.1 - 2020-09-14
+### Added
+- Full name to timesheet header for preparers to confirm which timesheet they're on.
 
 ### Changed
-
-- Nothing.
-
-### Deprecated
-
-- Nothing.
-
-### Removed
-
-- Nothing.
-
-### Fixed
-
-- Nothing.
+- Reduced size of Timesheet Week Ending Form to accomodate full name in header.
