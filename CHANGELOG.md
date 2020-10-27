@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 0.0.3 - 2020-09-21
+### Added
+- Added payroll controller to implement a payroll dashboard
+
 ## 0.0.2 - 2020-09-21
 ### Added
 - Category to Paycode
