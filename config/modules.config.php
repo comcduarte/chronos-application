@@ -35,4 +35,5 @@ return [
     'Timecard',
     'Report',
     'Annotation',
+    'Files',
 ];

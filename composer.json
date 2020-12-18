@@ -35,7 +35,8 @@
 			"Employee\\" : "module/Employee/src",
 			"Timecard\\" : "module/Timecard/src",
 			"Report\\" : "module/Report/src",
-			"Annotation\\" : "module/Annotation/src"
+			"Annotation\\" : "module/Annotation/src",
+			"Files\\" : "module/Files/src"
 		}
 	},
 	"scripts" : {
