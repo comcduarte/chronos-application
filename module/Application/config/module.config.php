@@ -10,11 +10,11 @@ declare(strict_types=1);
 
 namespace Application;
 
+use Application\Controller\FilesController;
+use Application\Controller\IndexController;
 use Laminas\Router\Http\Literal;
 use Laminas\Router\Http\Segment;
 use Laminas\ServiceManager\Factory\InvokableFactory;
-use Application\Navigation\Factory\AclNavigationFactory;
-use Application\Controller\IndexController;
 
 return [
     'router' => [
@@ -38,7 +38,20 @@ return [
                         'action'     => 'index',
                     ],
                 ],
+                'may_terminate' => TRUE,
+                'child_routes' => [
+                    'files' => [
+                        'type'    => Segment::class,
+                        'options' => [
+                            'route'    => '/files',
+                            'defaults' => [
+                                'controller' => Controller\FilesController::class,
+                            ],
+                        ],
+                    ],
+                ],
             ],
+            
         ],
     ],
     'acl' => [
@@ -49,43 +62,30 @@ return [
     'controllers' => [
         'factories' => [
             IndexController::class => InvokableFactory::class,
+            FilesController::class => InvokableFactory::class,
         ],
     ],
     'navigation' => [
         'default' => [
-            [
+            'home' => [
                 'label' => 'Home',
                 'route' => 'home',
                 'order' => 0,
             ],
-        ],
-        'test' => [
-            [
-                'label' => 'User',
-                'route' => 'home',
-                'order' => 0,
-            ],
-            [
-                'label' => 'Preparer',
-                'route' => 'home',
-                'order' => 0,
-            ],
-            [
-                'label' => 'Dept Head',
-                'route' => 'home',
-                'order' => 0,
-            ],
-            [
-                'label' => 'Payroll',
-                'route' => 'home',
-                'order' => 0,
-            ],
-            [
-                'label' => 'Admin',
-                'route' => 'home',
-                'order' => 0,
+            'settings' => [
+                'label' => 'Settings',
+                'pages' => [
+                    [
+                        'label' => 'Tax Document Upload',
+                        'route' => 'application/files',
+                        'action' => 'upload',
+                        'resource' => 'application/files',
+                        'privilege' => 'upload',
+                    ],
+                ],
             ],
         ],
+        
     ],
     'view_manager' => [
         'display_not_found_reason' => true,
