@@ -15,6 +15,7 @@ use Application\Controller\IndexController;
 use Laminas\Router\Http\Literal;
 use Laminas\Router\Http\Segment;
 use Laminas\ServiceManager\Factory\InvokableFactory;
+use Application\Controller\Factory\IndexControllerFactory;
 
 return [
     'router' => [
@@ -61,7 +62,7 @@ return [
     ],
     'controllers' => [
         'factories' => [
-            IndexController::class => InvokableFactory::class,
+            IndexController::class => IndexControllerFactory::class,
             FilesController::class => InvokableFactory::class,
         ],
     ],

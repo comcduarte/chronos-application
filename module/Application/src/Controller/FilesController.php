@@ -52,7 +52,8 @@ class FilesController extends AbstractActionController
          * Review how many files are in the queue.
          * Process them accordingly if command is given.
          */
-        
+        $fi = new \FilesystemIterator('./data/queue/', \FilesystemIterator::SKIP_DOTS);
+        $view->setVariable('num_files', iterator_count($fi));
         
         return $view;
     }

@@ -18,3 +18,18 @@
     	</div>
 	</div>
 </div>
+<div class="row">
+	<div class="col">
+		<div class="card mb-4">
+			<div class="card-header d-flex justify-content-between">
+        		<div>
+        			<b>Status Log</b>
+        		</div>
+        	</div>
+        	<div class="card-body">
+        		<a href="<?=$this->url('application', ['action'=>'cron'])?>" class="btn btn-primary btn-sm">Disseminate uploaded files</a>
+        		Number of Files Remaining: <?=$this->num_files?>
+        	</div>
+    	</div>
+	</div>
+</div>
