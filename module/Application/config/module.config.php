@@ -10,12 +10,14 @@ declare(strict_types=1);
 
 namespace Application;
 
+use Application\Controller\CustomReportController;
 use Application\Controller\FilesController;
 use Application\Controller\IndexController;
+use Application\Controller\Factory\CustomReportControllerFactory;
+use Application\Controller\Factory\IndexControllerFactory;
 use Laminas\Router\Http\Literal;
 use Laminas\Router\Http\Segment;
 use Laminas\ServiceManager\Factory\InvokableFactory;
-use Application\Controller\Factory\IndexControllerFactory;
 
 return [
     'router' => [
@@ -27,6 +29,16 @@ return [
                     'defaults' => [
                         'controller' => Controller\IndexController::class,
                         'action'     => 'index',
+                    ],
+                ],
+            ],
+            'custom-report' => [
+                'type'    => Segment::class,
+                'options' => [
+                    'route'    => '/custom-report[/:uuid]',
+                    'defaults' => [
+                        'controller' => Controller\CustomReportController::class,
+                        'action'     => 'view',
                     ],
                 ],
             ],
@@ -64,6 +76,7 @@ return [
         'factories' => [
             IndexController::class => IndexControllerFactory::class,
             FilesController::class => InvokableFactory::class,
+            CustomReportController::class => CustomReportControllerFactory::class,
         ],
     ],
     'navigation' => [
