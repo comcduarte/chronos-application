@@ -208,7 +208,7 @@ class IndexController extends AbstractActionController
             
             $infile = @file_get_contents($filepath);
             if (empty($infile)) {
-                continue 2;
+                continue;
             }
                 
             /**
