@@ -11,13 +11,16 @@ declare(strict_types=1);
 namespace Application\Controller;
 
 use Application\Model\Entity\UserEntity;
+use Components\Form\Element\Treeview;
 use Files\Model\FilesModel;
+use Files\Traits\FilesAwareTrait;
 use Laminas\Db\Adapter\AdapterAwareTrait;
+use Laminas\Form\Form;
+use Laminas\Form\Element\Text;
 use Laminas\Http\Request as HttpRequest;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
 use Exception;
-use Files\Traits\FilesAwareTrait;
 
 class IndexController extends AbstractActionController
 {
@@ -100,6 +103,7 @@ class IndexController extends AbstractActionController
                     /**
                      * Retrieve list of objects
                      */
+                    $objects = [];
                     preg_match_all("#obj(.*)endobj#ismU", $infile, $objects);
                     $objects = @$objects[1];
                     
@@ -146,7 +150,7 @@ class IndexController extends AbstractActionController
                     
                     if (!$user_entity->employee->read(['EMP_NUM' => $emp_num])) {
                         //** Error **//
-                        $this->flashMessenger()->addErrorMessage('Unable to read by EMP_NUM: ' . $emp_num);
+                        $this->flashMessenger()->addErrorMessage("Unable to read Paystub: Check Number: $check | Warrant: $warrant | Employee #: $emp_num");
                         $fi->next();
                         continue 2;
                     }
@@ -197,65 +201,62 @@ class IndexController extends AbstractActionController
     public function testAction()
     {
         $view = new ViewModel();
-        $data = [];
-        $objects = [];
         
-        $fi = new \FilesystemIterator('./data/queue/', \FilesystemIterator::SKIP_DOTS);
+        /** Test Data **/
+        $data = [
+            'Beer' => [
+                'Bud Light',
+                'Coors Light',
+            ],
+            'Wine' => [
+                'Barefoot',
+                'B.R. Cohn',
+                'Robert Mondavi',
+            ],
+            'Water',
+            'Juice',
+            'Whiskey' => [
+                'Scotch' => [
+                    'Glenlivet',
+                    'Macallan',
+                    'Lagavulin' => [
+                        '16 Year Old',
+                        '18 Year Old',
+                    ],
+                ],
+                'Bourbon',
+                'Rye',
+            ],
+        ];
         
-        foreach ($fi as $file) {
-            $filename = $file->getFileName();
-            $filepath = './data/queue/' . $filename;
-            
-            $infile = @file_get_contents($filepath);
-            if (empty($infile)) {
-                continue;
-            }
-                
-            /**
-             * Retrieve list of objects
-             */
-            preg_match_all("#obj(.*)endobj#ismU", $infile, $objects);
-            $objects = @$objects[1];
-            
-            $data['count_objects'] = count($objects);
-            
-            for ($i = 0; $i < count($objects); $i++) {
-                $currentObject = $objects[$i];
-                
-                $options = $this->getObjectOptions($currentObject);
-                
-                if (!empty($options['Subtype']) && $options['Subtype'] == 'Image') {
-                    continue ;
-                }
-                
-                $data[$i]['options'] = $options;
-                
-                $stream = [];
-                
-                switch (TRUE) {
-                    case preg_match("#stream(.*)endstream#ismU", $currentObject, $stream):
-                        $stream = ltrim($stream[1]);
-                        $data[$i]['stream'] = $stream;
-                        $data[$i]['decoded stream'] = $this->getDecodedStream($stream, $options);
-                        if (preg_match('/Employee \# (\d{6})/', $data[$i]['decoded stream'], $empnum)) {
-                            $employee = $empnum[1];
-                        }
-                        break;
-                    case preg_match("#\[(.*)\]#ismU", $currentObject, $stream):
-                        $data[$i]['stream'] = $stream[1];
-                        break;
-                    default:
-                        $data[$i]['stream'] = '<unknown>';
-                        break;
-                }
-                
-                
-                
-            }
-            
-        }
+        $form = new Form('TEST-TREEVIEW');
         
-        $view->setVariable('data', $data);
+        $form->add([
+            'name' => 'NAME',
+            'type' => Text::class,
+            'attributes' => [
+                'class' => 'form-control',
+                'id' => 'NAME',
+            ],
+            'options' => [
+                'label' => 'Name Field',
+            ],
+        ]);
+        
+        $form->add([
+            'name' => 'TREE',
+            'type' => Treeview::class,
+            'attributes' => [
+                'class' => 'form-control',
+                'id' => 'TREE',
+            ],
+            'options' => [
+                'label' => 'Tree View Field',
+                'data' => $data,
+            ],
+        ]);
+        
+        $view->setVariable('form', $form);
         return $view;
     }
     
