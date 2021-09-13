@@ -23,7 +23,9 @@
 		"laminas/laminas-form" : "~2.14",
 		"laminas/laminas-i18n" : "~2.10",
 		"laminas/laminas-permissions-acl" : "~2.7",
-		"laminas/laminas-permissions-rbac" : "~3.0"
+		"laminas/laminas-permissions-rbac" : "~3.0",
+		"laminas/laminas-mail" : "~2.14",
+		"laminas/laminas-log" : "~2.13"
 	},
 	"autoload" : {
 		"psr-4" : {
@@ -51,5 +53,8 @@
 		],
 		"serve" : "php -S 0.0.0.0:8080 -t public",
 		"test" : "phpunit"
+	},
+	"require-dev" : {
+		"laminas/laminas-developer-tools" : "~2.1"
 	}
 }
