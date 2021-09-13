@@ -12,6 +12,8 @@
  * This should be an array of module namespaces used in the application.
  */
 return [
+    'Laminas\Log',
+    'Laminas\Mail',
     'Laminas\I18n',
     'Laminas\Db',
     'Laminas\Navigation',
@@ -26,6 +28,7 @@ return [
     'Laminas\Session',
     'Laminas\Router',
     'Laminas\Validator',
+    'Laminas\DeveloperTools',
     'Application',
     'Acl',
     'Components',

@@ -79,6 +79,19 @@ return [
             CustomReportController::class => CustomReportControllerFactory::class,
         ],
     ],
+    'log' => [
+        'syslogger' => [
+            'writers' => [
+                'syslog' => [
+                    'name' => \Laminas\Log\Writer\Syslog::class,
+                    'priority' => \Laminas\Log\Logger::INFO,
+                    'options' => [
+                        'application' => 'CHRONOS',
+                    ],
+                ],
+            ],
+        ],
+    ],
     'navigation' => [
         'default' => [
             'home' => [
