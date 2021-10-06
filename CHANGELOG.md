@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 1.0.0 - 2021-10-06
+
+
 ## 0.0.3 - 2020-10-27
 ### Added
 - Added payroll controller to implement a payroll dashboard
