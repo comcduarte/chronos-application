@@ -11,12 +11,9 @@ declare(strict_types=1);
 namespace Application\Controller;
 
 use Application\Model\Entity\UserEntity;
-use Components\Form\Element\Treeview;
 use Files\Model\FilesModel;
 use Files\Traits\FilesAwareTrait;
 use Laminas\Db\Adapter\AdapterAwareTrait;
-use Laminas\Form\Form;
-use Laminas\Form\Element\Text;
 use Laminas\Http\Request as HttpRequest;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
@@ -196,68 +193,6 @@ class IndexController extends AbstractActionController
             return $this->redirect()->toUrl($url);
         }
         
-    }
-    
-    public function testAction()
-    {
-        $view = new ViewModel();
-        
-        /** Test Data **/
-        $data = [
-            'Beer' => [
-                'Bud Light',
-                'Coors Light',
-            ],
-            'Wine' => [
-                'Barefoot',
-                'B.R. Cohn',
-                'Robert Mondavi',
-            ],
-            'Water',
-            'Juice',
-            'Whiskey' => [
-                'Scotch' => [
-                    'Glenlivet',
-                    'Macallan',
-                    'Lagavulin' => [
-                        '16 Year Old',
-                        '18 Year Old',
-                    ],
-                ],
-                'Bourbon',
-                'Rye',
-            ],
-        ];
-        
-        $form = new Form('TEST-TREEVIEW');
-        
-        $form->add([
-            'name' => 'NAME',
-            'type' => Text::class,
-            'attributes' => [
-                'class' => 'form-control',
-                'id' => 'NAME',
-            ],
-            'options' => [
-                'label' => 'Name Field',
-            ],
-        ]);
-        
-        $form->add([
-            'name' => 'TREE',
-            'type' => Treeview::class,
-            'attributes' => [
-                'class' => 'form-control',
-                'id' => 'TREE',
-            ],
-            'options' => [
-                'label' => 'Tree View Field',
-                'data' => $data,
-            ],
-        ]);
-        
-        $view->setVariable('form', $form);
-        return $view;
     }
     
     private function tick(&$start_time, &$end_time, &$runtime, &$num_files)
