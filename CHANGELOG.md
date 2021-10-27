@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 1.0.1 - 2021-10-28
+### Added
+- Timesheet: Allow prepare-, approve-, and complete-all actions based on privileges.
+
+### Changed
+- Timesheet: Change text from 'Submit' to 'Add Paycode'.  Signature 'Submit' button was too close.
+- Timesheet: Display error when application cannot establish user > employee relationship.
+- Timesheet: List employees available to add in order by last name.  List includes departmental employees, not just employees authorized by the current user.
+- Notifications: If adding a user's timesheet that doesn't have an AD account, upon signing and attempting notification, browser receives exception 5.1.1 User Known.  Added logger to catch notification errors.
+- Reports: Include the total number of hours per employee, total rows.
+- Reports: dept.phtml department dashboard specifies dev db.  needs to be generic, has to specify db due to ambiguity.
+- Reports: Add DAYS to weekly time sheet dept. report
+- Import: Parse timesheet using filename only.  Employee Number now contained in filenames.
+
 ## 1.0.0 - 2021-10-06
 
 
