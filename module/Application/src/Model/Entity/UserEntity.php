@@ -38,6 +38,8 @@ class UserEntity
         if (! $emp_uuid ) {
             if ( $this->findEmployee() ) {
                 $this->setRelationship($this->user->UUID, $this->employee->UUID);
+            } else {
+                return false;
             }
         } else {
             $this->employee->read(['UUID' => $emp_uuid]);
