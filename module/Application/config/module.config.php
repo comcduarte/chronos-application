@@ -103,7 +103,7 @@ return [
                 'label' => 'Settings',
                 'pages' => [
                     [
-                        'label' => 'Tax Document Upload',
+                        'label' => 'Document Upload',
                         'route' => 'application/files',
                         'action' => 'upload',
                         'resource' => 'application/files',
