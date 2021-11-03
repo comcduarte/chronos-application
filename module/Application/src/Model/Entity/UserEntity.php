@@ -57,16 +57,6 @@ class UserEntity
     {
         $this->employee->read(['UUID' => $uuid]);
         $this->getDepartment($this->employee->DEPT);
-        
-//         $user_uuid = $this->getUserRelationship();
-//         if (! $user_uuid) {
-//             if ( $this->findUser() ) {
-//                 $this->setRelationship($this->user->UUID, $this->employee->UUID);
-//             }
-//         } else {
-//             $this->user->read(['UUID' => $user_uuid]);
-//             $this->getGroups();
-//         }
         return $this;
     }
     
