@@ -44,6 +44,8 @@ class UserEntity
         } else {
             $this->employee->read(['UUID' => $emp_uuid]);
             $this->department->read(['UUID' => $this->employee->DEPT]);
+            $this->employee->EMAIL = $this->user->EMAIL;
+            $this->employee->update();
         }
         
         $this->getGroups();
