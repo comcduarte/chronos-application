@@ -22,6 +22,6 @@
 [submodule "module/Annotation"]
 	path = module/Annotation
 	url = https://github.com/comcduarte/com-annotation.git
-[submodule "module\\Files"]
-	path = module\\Files
+[submodule "module/Files"]
+	path = module/Files
 	url = https://github.com/comcduarte/com-files.git
