@@ -50,4 +50,25 @@ class CustomReportController extends ReportController
         
         return $data;
     }
+    
+    private function dept_time_cards($data) 
+    {
+        $dow = ['SUN','MON','TUES','WED','THURS','FRI','SAT','DAYS'];
+        
+        $results = [];
+        foreach ($data as $i => $paycode) {
+            $index = sprintf('%s-%s', $paycode['EMP_NUM'], $paycode['CODE']);
+            if (array_key_exists($index, $results)) {
+                foreach ($dow as $day) {
+                    if ($data[$i][$day]) {
+                        $results[$index][$day] += $data[$i][$day];
+                    }
+                }
+            } else {
+                $results[$index] = $paycode;
+            }
+        }
+        
+        return $results;
+    }
 }
