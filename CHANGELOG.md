@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 1.0.2 - 2021-11-05
+### Changed
+- Reports: Blue sheet report no longer displays blank lines for pay code.
+- Reports: Time cards report consolidate multiple entries for same paycode.
+- Timesheet: Unable to set status at or below current status, unless permission allows for unsubmit.
+- Import: Update emails via Active Directory rather than import.
+- Import: Import employees set status of Active and assign to department base on PTG alone.
+
 ## 1.0.1 - 2021-10-28
 ### Added
 - Timesheet: Allow prepare-, approve-, and complete-all actions based on privileges.
