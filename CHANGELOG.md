@@ -1,6 +1,12 @@
 # Changelog
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
+## 1.0.3 - TBD
+### Changed
+- Import: Fixed incorrect association with department during import.
+- Notifications: Exited function if email proved NULL.  return was absent in 1.0.2.
+- Timesheet: Preparers and above, governed by ACL, have ability to delete entire timecards.  Records are permanently deleted.
+- Timesheet: Do not allow changes to completed time cards.
 
 ## 1.0.2 - 2021-11-05
 ### Changed
