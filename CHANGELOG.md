@@ -1,7 +1,13 @@
 # Changelog
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
-## 1.0.3 - TBD
+
+## 1.0.4 - 2021-11-24
+### Added
+- United Way: Include United Way pledge form.  Module can be turned off via ACLs.
+
+
+## 1.0.3 - 2021-11-12
 ### Changed
 - Import: Fixed incorrect association with department during import.
 - Notifications: Exited function if email proved NULL.  return was absent in 1.0.2.
