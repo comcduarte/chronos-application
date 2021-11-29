@@ -26,16 +26,17 @@ If you want to donate by cash or check, please use an interoffice envelope and s
 Name: <?php echo sprintf('%s %s',$user->employee->FNAME,$user->employee->LNAME); ?><br>
 Employee Number: <?php echo $user->employee->EMP_NUM; ?><br>
 
-<?php if ($this->records[0]['METHOD'] == 'PAYROLL') : ?>
-Frequency: Weekly<br>
-<?php endif; ?>
-<?php if ($this->records[0]['METHOD'] == 'CASH') : ?>
-Frequency: One Time<br>
-<?php endif; ?>
-<hr>
+
 
 <?php if ($this->records) : ?>
-Deduction Amount: <?php echo $this->records[0]['DEDUCTION']; ?><br>
+    <?php if ($this->records[0]['METHOD'] == 'PAYROLL') : ?>
+    Frequency: Weekly<br>
+    <?php endif; ?>
+    <?php if ($this->records[0]['METHOD'] == 'CASH') : ?>
+    Frequency: One Time<br>
+    <?php endif; ?>
+    <hr>
+	Deduction Amount: <?php echo $this->records[0]['DEDUCTION']; ?><br>
 <?php return; ?>
 <?php endif; ?>
 
