@@ -37,17 +37,21 @@ class CustomReportController extends ReportController
         }
         
         foreach ($data as $i => $paycode) {
+            /**
+             * If a paycode has a parent, add the hours to the parents total as well as the individual paycode's total.
+             */
             if ($paycode['PARENT'] != NULL) {
                 $index = sprintf('%s-%s-%s', $paycode['PARENT'], $paycode['TIME_GROUP'], $paycode['TIME_SUBGROUP']);
                 
                 foreach ($dow as $day) {
                     $data[$keys[$index]][$day] += $paycode[$day];
                 }
-                
-                unset($data[$i]);
+             /**
+              * If the original paycodes total needs to be removed, uncomment the following line.
+              * unset($data[$i]);
+              */
             }
         }
-        
         return $data;
     }
     
