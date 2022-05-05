@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ## 1.0.5 - TBD
 ### Changed
+- Bootstrap: Upgraded to Bootstrap v5.1.3
 - Reports: Blue sheet report adds hours to parent paycode.
 
 ## 1.0.4 - 2021-11-24
