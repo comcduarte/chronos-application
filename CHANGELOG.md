@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
 ## 1.0.5 - TBD
+### Added
+- Import: Telestaff imported added to application for Police Department.
+
+### Fixed
+- Fix: Converted TUES and THURS references to standard three letter.
+
 ### Changed
 - Bootstrap: Upgraded to Bootstrap v5.1.3
 - Reports: Blue sheet report adds hours to parent paycode.

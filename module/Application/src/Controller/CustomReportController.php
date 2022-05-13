@@ -28,7 +28,7 @@ class CustomReportController extends ReportController
     
     private function deptbluesheet($data)
     {
-        $dow = ['SUN','MON','TUES','WED','THURS','FRI','SAT', 'DAYS'];
+        $dow = ['SUN','MON','TUE','WED','THU','FRI','SAT', 'DAYS'];
         
         $keys = NULL;
         foreach ($data as $i => $paycode) {
@@ -57,7 +57,7 @@ class CustomReportController extends ReportController
     
     private function dept_time_cards($data) 
     {
-        $dow = ['SUN','MON','TUES','WED','THURS','FRI','SAT','DAYS'];
+        $dow = ['SUN','MON','TUE','WED','THU','FRI','SAT','DAYS'];
         
         $results = [];
         foreach ($data as $i => $paycode) {
