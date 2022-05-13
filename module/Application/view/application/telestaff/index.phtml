@@ -1,0 +1,20 @@
+<div class="row">
+	<div class="col">
+		<div class="card mb-4">
+			<div class="card-header d-flex justify-content-between">
+        		<div>
+        			<b>Telestaff Upload</b>
+        		</div>
+        	</div>
+        	<div class="card-body">
+        		<?php 
+        		$this->importForm->prepare();
+        		$this->importForm->setAttribute('action', $this->url('application/telestaff-import', ['action' => 'import']));
+        		echo $this->form()->openTag($this->importForm); 
+        		echo $this->formCollection($this->importForm);
+        		echo $this->form()->closeTag($this->importForm);
+        		?>
+        	</div>
+		</div>
+	</div>
+</div>

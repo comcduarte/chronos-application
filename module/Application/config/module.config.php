@@ -13,9 +13,11 @@ namespace Application;
 use Application\Controller\CustomReportController;
 use Application\Controller\FilesController;
 use Application\Controller\IndexController;
+use Application\Controller\TelestaffImportController;
 use Application\Controller\UnitedWayController;
 use Application\Controller\Factory\CustomReportControllerFactory;
 use Application\Controller\Factory\IndexControllerFactory;
+use Application\Controller\Factory\TelestaffImportControllerFactory;
 use Application\Controller\Factory\UnitedWayControllerFactory;
 use Laminas\Router\Http\Literal;
 use Laminas\Router\Http\Segment;
@@ -73,8 +75,19 @@ return [
                             ],
                         ],
                     ],
+                    'telestaff-import' => [
+                        'type'    => Segment::class,
+                        'options' => [
+                            'route'    => '/telestaff[/:action[/:uuid]]',
+                            'defaults' => [
+                                'controller' => Controller\TelestaffImportController::class,
+                                'action'     => 'index',
+                            ],
+                        ],
+                    ],
                 ],
             ],
+            
         ],
     ],
     'acl' => [
@@ -88,6 +101,7 @@ return [
             FilesController::class => InvokableFactory::class,
             CustomReportController::class => CustomReportControllerFactory::class,
             UnitedWayController::class => UnitedWayControllerFactory::class,
+            TelestaffImportController::class => TelestaffImportControllerFactory::class,
         ],
     ],
     'log' => [
@@ -116,6 +130,24 @@ return [
                 'action' => 'index',
                 'resource' => 'application/unitedway',
                 'privilege' => 'index',
+            ],
+            'utilities' => [
+                'label' => 'Utilities',
+                'route' => 'home',
+                'action' => 'index',
+                'resource' => 'home',
+                'privilege' => 'index',
+                'class' => 'dropdown',
+                'order' => 100,
+                'pages' => [
+                    [
+                        'label' => 'Telestaff Upload',
+                        'route' => 'application/telestaff-import',
+                        'action' => 'index',
+                        'resource' => 'application/telestaff-import',
+                        'privilege' => 'index',
+                    ],
+                ],
             ],
             'settings' => [
                 'label' => 'Settings',
@@ -151,6 +183,7 @@ return [
             'application/index/index' => __DIR__ . '/../view/application/index/index.phtml',
             'error/404'               => __DIR__ . '/../view/error/404.phtml',
             'error/index'             => __DIR__ . '/../view/error/index.phtml',
+            'telestaff/config'        => __DIR__ . '/../view/application/telestaff/index.phtml',
         ],
         'template_path_stack' => [
             __DIR__ . '/../view',
