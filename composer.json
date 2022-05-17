@@ -25,7 +25,8 @@
 		"laminas/laminas-permissions-acl" : "~2.7",
 		"laminas/laminas-permissions-rbac" : "~3.0",
 		"laminas/laminas-mail" : "~2.14",
-		"laminas/laminas-log" : "~2.13"
+		"laminas/laminas-log" : "~2.13",
+		"laminas/laminas-servicemanager" : "3.5.1"
 	},
 	"autoload" : {
 		"psr-4" : {
