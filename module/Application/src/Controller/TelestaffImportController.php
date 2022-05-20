@@ -113,7 +113,7 @@ class TelestaffImportController extends AbstractConfigController
                         
                         $restcl = $tcl->read(['PAY_UUID' => $pc->UUID, 'TIMECARD_UUID' => $timecard->TIMECARD_UUID]);
                         if ($restcl) {
-                            $tcl->$day = $record[$HOUR];
+                            $tcl->$day += $record[$HOUR];
                             $tcl->update();
                         } else {
                             $tcl->TIMECARD_UUID = $timecard->TIMECARD_UUID;
