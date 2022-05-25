@@ -1,0 +1,165 @@
+<style type="text/css" media="print">
+    @media print{
+        @page { size: landscape; }
+    }
+    body { 
+        zoom: 65%; 
+    }
+    div.page-break { page-break-after: always; }
+</style>
+
+<?php
+global $report_data;
+global $employees;
+global $work_week;
+global $accrual_totals;
+
+$accrual_totals = [];
+$current_employee = 0;
+$total = 0;
+$work_week = $this->data['WORK_WEEK'];
+?>
+
+<h1><?=$this->data['DEPT']?> -- Payroll Information</h1>
+<h3>Totals for Week Ending: <?=$work_week?></h3>
+<hr>
+
+<div class="container-fluid page-break">
+	<div class="row">
+		<?php foreach ($this->data['BLUESHEET'] as $title => $paycode) : ?>
+		<div class="col-md-6">
+			<h3><?=$title?></h3>
+			<div class="container">
+				<?php foreach ($paycode as $code => $hours) : ?>
+				<div class="row">
+					<div class="col-1 d-flex justify-content-end"><?=$code?></div>
+					<div class="col-2 d-flex justify-content-end">[<?=number_format($hours,2);?>]</div>
+				</div>
+				<?php endforeach; ?>
+			</div>
+		</div>
+		<?php endforeach; ?>
+	</div>
+</div>
+
+
+<?php foreach ($this->data['EMPLOYEES'] as $emp_index => $employee) : ?>
+<!-- BEGIN EMPLOYEE -->
+<div class="container-fluid border">
+	<div class="row mt-4">
+		<div class="col"><?=$employee['RECORD']['LNAME']?>, <?=$employee['RECORD']['FNAME']?> [<?=$employee['RECORD']['EMP_NUM']?>]</div>
+	</div>
+	<div class="row">
+		<?php foreach ($this->data['ACCRUAL_LIST'] as $accrual) : ?>
+		<!-- BEGIN ACCRUAL -->
+		<div class="col">(<?=$accrual?>)</div>
+		<!-- END ACCRUAL -->
+		<?php endforeach; ?>
+	</div>
+	<div class="row">
+		<?php foreach ($this->data['ACCRUAL_LIST'] as $accrual) : ?>
+		<!-- BEGIN ACCRUAL -->
+		<div class="col border"><span class="badge bg-secondary text-light" id="<?=sprintf('%s-%s',$employee['RECORD']['EMP_NUM'],$accrual);?>"></span></div>
+		<!-- END ACCRUAL -->
+		<?php endforeach; ?>
+	</div>
+	
+	<!-- Daily Header Row -->
+	<div class="row">
+		<?php for ($i=0; $i < 5; $i++) : ?>
+		<div class="col-2">
+			<div class="row">
+				<div class="col">Day</div>
+        		<div class="col">Hrs</div>
+        		<div class="col">Code</div>
+			</div>
+		</div>
+		<?php endfor; ?>
+	</div>
+
+	<!-- BEGIN REGULAR ROW -->
+	<div class="row">
+		<?php foreach ($this->data['DOW'] as $day) : ?>
+    		<?php if (!empty($employee['REGULAR'][$day])) : ?>
+    		<div class="col-2 border">
+    			<div class="row">
+    				<?php 
+    				$code = key($employee['REGULAR'][$day]); 
+    				$hours = $employee['REGULAR'][$day][$code];
+    				
+    				/**
+    				 * Increment Accrual Total
+    				 */
+    				$accrual_index = sprintf('%s-%s',$employee['RECORD']['EMP_NUM'],$this->data['ACCRUALS'][$code]);
+    				if (!empty($accrual_totals[$accrual_index])) {
+    				    $accrual_totals[$accrual_index] += (float) $hours;
+    				} else {
+    				    $accrual_totals[$accrual_index] = (float) $hours;
+    				}
+    				?>
+            		<div class="col"><?=$day?></div>
+            		<div class="col"><?=$hours?></div>
+            		<div class="col"><?=$code?></div>
+        		</div>
+    		</div>
+    		<?php endif; ?>
+		<?php endforeach; ?>
+		
+		<!-- FILLER COL -->
+		<div class="col"></div>
+		
+		<!-- BEGIN TOTAL REGULAR HOURS -->
+		<div class="col-1 border">
+			<div class="row">
+				<div class="col">001</div>
+				<div class="col  d-flex justify-content-end"><?=$employee['RECORD']['HOUR']?></div>
+			</div>
+		</div>
+		<!-- END TOTAL REGULAR HOURS -->
+	</div>
+	<!-- END REGULAR ROW -->
+	
+	<?php if (!empty($employee['OT'])) : ?>
+	<!-- BEGIN OVERTIME ROWS -->
+	<?php foreach ($employee['OT'] as $code => $record) : ?>
+	<div class="row">
+		<?php foreach ($this->data['DOW'] as $day) : ?>
+    		<?php if (!empty($record[$day])) : ?>
+    		<?php $total += $record[$day]; ?>
+    		<div class="col-2 border">
+    			<div class="row">
+            		<div class="col"><?=$day?></div>
+            		<div class="col"><?=$record[$day]?></div>
+            		<div class="col"><?=$code?></div>
+        		</div>
+    		</div>
+    		<?php endif; ?>
+		<?php endforeach; ?>
+		
+		<!-- FILLER COL -->
+		<div class="col"></div>
+		
+		<!-- BEGIN TOTAL OVERTIME HOURS -->
+		<div class="col-1">
+			<div class="row">
+				<div class="col"><?=$code?></div>
+				<div class="col d-flex justify-content-end"><?=number_format($total,2);?></div>
+				
+				
+			</div>
+		</div>
+		<!-- END TOTAL OVERTIME HOURS -->
+	</div>
+	<?php $total = 0; ?>
+	<?php endforeach; ?>
+	<!-- END OVERTIME ROWS -->
+	<?php endif; ?>
+</div>
+<?php endforeach; ?>
+
+<!-- POPULATE ACCRUAL TOTALS -->
+<script type="text/javascript">
+<?php foreach ($accrual_totals as $accrual => $total) : ?>
+	document.getElementById("<?=$accrual?>").innerHTML = "<?=number_format($total,2);?>";
+<?php endforeach; ?>
+</script>

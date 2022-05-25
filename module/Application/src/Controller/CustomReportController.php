@@ -4,6 +4,7 @@ namespace Application\Controller;
 use Laminas\View\Model\ViewModel;
 use Report\Controller\ReportController;
 use Report\Model\ReportModel;
+use Timecard\Model\PaycodeModel;
 
 class CustomReportController extends ReportController
 {
@@ -73,6 +74,81 @@ class CustomReportController extends ReportController
             }
         }
         
+        return $results;
+    }
+    
+    private function dept_time_cards_v2($data)
+    {
+        $pm = new PaycodeModel($this->adapter);
+        /**
+         * Returns
+         * $paycodes[0]['ACCRUAL'] = 'XX'
+         * @var array $paycodes
+         */
+        $accruals = $pm->get_accruals();
+        $results = [
+            'ACCRUALS' => $accruals[1],
+            'ACCRUAL_LIST' => $accruals[0],
+            'EMPLOYEES' => [],
+            'WORK_WEEK' => $data[0]['WORK_WEEK'],
+            'DOW' => ['SUN','MON','TUE','WED','THU','FRI','SAT','DAYS'],
+            'DEPT' => $data[0]['DEPT'],
+            'BLUESHEET' => [
+                'Time Off Totals' => [],
+                'Payroll Totals' => [
+                    '001' => 0,
+                ],
+            ],
+        ];
+        
+        foreach ($data as $i => $paycode) {
+            $emp_index = sprintf('%s-%s',$paycode['TIME_SUBGROUP'], $paycode['EMP_NUM']);
+            $results['EMPLOYEES'][$emp_index]['RECORD'] = $paycode;
+            switch (true) {
+                case array_search($paycode['CODE'], array_keys($accruals[1])):
+                    $z = 'REGULAR';
+                    foreach ($results['DOW'] as $day) {
+                        if ($paycode[$day]) {
+                            $results['EMPLOYEES'][$emp_index][$z][$day][$paycode['CODE']] = $paycode[$day];
+                            $code = $paycode['CODE'];
+                            $accrual = $results['ACCRUALS'][$code];
+                            
+                            if (!empty($results['BLUESHEET']['Time Off Totals'][$accrual])) {
+                                $results['BLUESHEET']['Time Off Totals'][$accrual] += $paycode[$day];
+                            } else {
+                                $results['BLUESHEET']['Time Off Totals'][$accrual] = $paycode[$day];
+                            }
+                        }
+                    }
+                    ksort($results['BLUESHEET']['Time Off Totals']);
+                    break;
+                case $paycode['CODE'] == '001':
+                    if ($paycode['HOUR'] > 0) {
+                        $results['BLUESHEET']['Payroll Totals']['001'] += $paycode['HOUR'];
+                        continue 2;
+                    }
+                default:
+                    $z = 'OT';
+                    foreach ($results['DOW'] as $day) {
+                        if ($paycode[$day]) {
+                            $results['EMPLOYEES'][$emp_index][$z][$paycode['CODE']][$day] = $paycode[$day];
+                            $code = $paycode['CODE'];
+                            
+                            if (!empty($results['BLUESHEET']['Payroll Totals'][$code])) {
+                                $results['BLUESHEET']['Payroll Totals'][$code] += $paycode[$day];
+                            } else {
+                                $results['BLUESHEET']['Payroll Totals'][$code] = $paycode[$day];
+                            }
+                        }
+                        
+                        
+                    }
+                    ksort($results['BLUESHEET']['Payroll Totals']);
+//                     ksort($results['EMPLOYEES'][$emp_index][$z]);
+                    break;
+            }
+        }
+        ksort($results['EMPLOYEES']);
         return $results;
     }
 }
