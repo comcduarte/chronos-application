@@ -109,14 +109,19 @@ class CustomReportController extends ReportController
                     $z = 'REGULAR';
                     foreach ($results['DOW'] as $day) {
                         if ($paycode[$day]) {
-                            $results['EMPLOYEES'][$emp_index][$z][$day][$paycode['CODE']] = $paycode[$day];
+                            /**
+                             * For Accruals, if time is 8.5, move to 8
+                             */
+                            ($paycode[$day] == 8.5) ? $hours = 8 : $hours = $paycode[$day];
+                            
+                            $results['EMPLOYEES'][$emp_index][$z][$day][$paycode['CODE']] = $hours;
                             $code = $paycode['CODE'];
                             $accrual = $results['ACCRUALS'][$code];
                             
                             if (!empty($results['BLUESHEET']['Time Off Totals'][$accrual])) {
-                                $results['BLUESHEET']['Time Off Totals'][$accrual] += $paycode[$day];
+                                $results['BLUESHEET']['Time Off Totals'][$accrual] += $hours;
                             } else {
-                                $results['BLUESHEET']['Time Off Totals'][$accrual] = $paycode[$day];
+                                $results['BLUESHEET']['Time Off Totals'][$accrual] = $hours;
                             }
                         }
                     }
