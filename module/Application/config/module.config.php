@@ -135,8 +135,8 @@ return [
                 'label' => 'Utilities',
                 'route' => 'home',
                 'action' => 'index',
-                'resource' => 'home',
-                'privilege' => 'index',
+                'resource' => 'application/utilies',
+                'privilege' => 'menu',
                 'class' => 'dropdown',
                 'order' => 100,
                 'pages' => [
