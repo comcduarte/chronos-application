@@ -82,11 +82,9 @@ $work_week = $this->data['WORK_WEEK'];
 		<?php foreach ($this->data['DOW'] as $day) : ?>
     		<?php if (!empty($employee['REGULAR'][$day])) : ?>
     		<div class="col-2 border">
-    			<div class="row bg-primary text-light rounded-left rounded-right">
+    			<div class="row bg-primary text-light rounded-left rounded-right row-cols-3">
     				<?php 
-    				$code = key($employee['REGULAR'][$day]); 
-    				$hours = $employee['REGULAR'][$day][$code];
-    				
+    				foreach ($employee['REGULAR'][$day] as $code => $hours) {
     				/**
     				 * Increment Accrual Total
     				 */
@@ -100,6 +98,8 @@ $work_week = $this->data['WORK_WEEK'];
             		<div class="col"><?=$day?></div>
             		<div class="col"><?=$hours?></div>
             		<div class="col"><?=$code?></div>
+            		<div class="w-100"></div>
+            		<?php } ?>
         		</div>
     		</div>
     		<?php endif; ?>
