@@ -38,10 +38,14 @@ class UserEntity
         if (! $emp_uuid ) {
             if ( $this->findEmployee() ) {
                 $this->setRelationship($this->user->UUID, $this->employee->UUID);
+            } else {
+                return false;
             }
         } else {
             $this->employee->read(['UUID' => $emp_uuid]);
             $this->department->read(['UUID' => $this->employee->DEPT]);
+            $this->employee->EMAIL = $this->user->EMAIL;
+            $this->employee->update();
         }
         
         $this->getGroups();
@@ -53,16 +57,6 @@ class UserEntity
     {
         $this->employee->read(['UUID' => $uuid]);
         $this->getDepartment($this->employee->DEPT);
-        
-//         $user_uuid = $this->getUserRelationship();
-//         if (! $user_uuid) {
-//             if ( $this->findUser() ) {
-//                 $this->setRelationship($this->user->UUID, $this->employee->UUID);
-//             }
-//         } else {
-//             $this->user->read(['UUID' => $user_uuid]);
-//             $this->getGroups();
-//         }
         return $this;
     }
     

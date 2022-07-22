@@ -1,0 +1,95 @@
+<?php
+use Application\Model\Entity\UserEntity;
+
+/**
+ * 
+ * @var UserEntity $user
+ */
+$user = $this->user;
+$form = $this->payroll_form;
+
+/**
+ * VERBAGE
+ */
+if (!$this->records) {
+    ?>
+    <p>By submitting your pledge, you acknowledge this donation for the Middlesex United Way. Your address will be provided to the MUW so you can receive acknowledgement of your tax deductible donation.
+If you want to donate by cash or check, please use an interoffice envelope and send to Cathy Lechowicz (Recreation and Senior Services). If you have any technical difficulties, please contact the <a href="mailto:christopher.duarte@middletownct.gov">IT Department</a>.</p>
+    <?php
+} else {
+    ?>
+    <p>Thank you for your donation! Your donation information is below, if there is a mistake, please contact <a href="mailto:cathy.lechowicz@middletownct.gov">Cathy Lechowicz (cathy.lechowicz@middletownct.gov)</a> or <a href="mailto:christopher.duarte@middletownct.gov">Chris Duarte (christopher.duarte@middletownct.gov)</a>.</p> 
+    <?php
+}
+?>
+
+Name: <?php echo sprintf('%s %s',$user->employee->FNAME,$user->employee->LNAME); ?><br>
+Employee Number: <?php echo $user->employee->EMP_NUM; ?><br>
+
+
+
+<?php if ($this->records) : ?>
+    <?php if ($this->records[0]['METHOD'] == 'PAYROLL') : ?>
+    Frequency: Weekly<br>
+    <?php endif; ?>
+    <?php if ($this->records[0]['METHOD'] == 'CASH') : ?>
+    Frequency: One Time<br>
+    <?php endif; ?>
+    <hr>
+	Deduction Amount: <?php echo $this->records[0]['DEDUCTION']; ?><br>
+<?php return; ?>
+<?php endif; ?>
+
+<?php
+$form->setAttribute('action', $this->url('application/unitedway', ['action' => 'create']));
+$form->prepare();
+echo $this->form()->openTag($form);
+
+/******************************
+ * Variables
+ ******************************/
+$aryValues = [
+    '50','25','10','5','1','Other',
+];
+
+$aryDesignations = [
+    
+];
+?>
+<div class="container-fluid">
+	<label>Deduction Amount</label>
+	<div class="row">
+		
+		<?php foreach ($aryValues as $value) : ?>
+		<div class="col-sm-2">
+			<div class="input-group mb-3" style="width: 100%">
+				<div class="input-group-prepend">
+					<div class="input-group-text" style="width: 40px">
+						<div class="form-check form-check-inline">
+                          <input class="form-check-input" type="radio" name="DEDUCTION" id="DEDUCTION" value="<?php echo $value; ?>">
+                        </div>
+					</div>
+				</div>
+				<span class="form-control"><?php echo $value; ?></span>
+			</div>
+		</div>
+		<?php endforeach; ?>
+	</div>
+	<div class="row">
+		<div class="col-lg-6">
+			<?php echo $this->formRow($form->get('OTHER')); ?>
+		</div>
+	</div>
+	<div class="row">
+    	<div class="col-sm-12">
+    		<?php echo $this->formRow($form->get('METHOD')); ?>
+    		<?php echo $this->formRow($form->get('USER_UUID')); ?>
+    		<?php echo $this->formRow($form->get('EMP_UUID')); ?>
+        	<?php echo $this->formRow($form->get('SECURITY')); ?>
+        	<?php echo $this->formRow($form->get('SUBMIT')); ?>
+    	</div>
+    </div>
+</div>
+
+<?php
+echo $this->form()->closeTag($form);

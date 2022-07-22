@@ -13,8 +13,12 @@ namespace Application;
 use Application\Controller\CustomReportController;
 use Application\Controller\FilesController;
 use Application\Controller\IndexController;
+use Application\Controller\TelestaffImportController;
+use Application\Controller\UnitedWayController;
 use Application\Controller\Factory\CustomReportControllerFactory;
 use Application\Controller\Factory\IndexControllerFactory;
+use Application\Controller\Factory\TelestaffImportControllerFactory;
+use Application\Controller\Factory\UnitedWayControllerFactory;
 use Laminas\Router\Http\Literal;
 use Laminas\Router\Http\Segment;
 use Laminas\ServiceManager\Factory\InvokableFactory;
@@ -45,7 +49,7 @@ return [
             'application' => [
                 'type'    => Segment::class,
                 'options' => [
-                    'route'    => '/application[/:action]',
+                    'route'    => '/application',
                     'defaults' => [
                         'controller' => Controller\IndexController::class,
                         'action'     => 'index',
@@ -59,6 +63,25 @@ return [
                             'route'    => '/files',
                             'defaults' => [
                                 'controller' => Controller\FilesController::class,
+                            ],
+                        ],
+                    ],
+                    'unitedway' => [
+                        'type'    => Segment::class,
+                        'options' => [
+                            'route'    => '/unitedway[/:action[/:uuid]]',
+                            'defaults' => [
+                                'controller' => Controller\UnitedWayController::class,
+                            ],
+                        ],
+                    ],
+                    'telestaff-import' => [
+                        'type'    => Segment::class,
+                        'options' => [
+                            'route'    => '/telestaff[/:action[/:uuid]]',
+                            'defaults' => [
+                                'controller' => Controller\TelestaffImportController::class,
+                                'action'     => 'index',
                             ],
                         ],
                     ],
@@ -77,6 +100,8 @@ return [
             IndexController::class => IndexControllerFactory::class,
             FilesController::class => InvokableFactory::class,
             CustomReportController::class => CustomReportControllerFactory::class,
+            UnitedWayController::class => UnitedWayControllerFactory::class,
+            TelestaffImportController::class => TelestaffImportControllerFactory::class,
         ],
     ],
     'log' => [
@@ -99,11 +124,36 @@ return [
                 'route' => 'home',
                 'order' => 0,
             ],
+            'unitedway' => [
+                'label' => 'United Way',
+                'route' => 'application/unitedway',
+                'action' => 'index',
+                'resource' => 'application/unitedway',
+                'privilege' => 'index',
+            ],
+            'utilities' => [
+                'label' => 'Utilities',
+                'route' => 'home',
+                'action' => 'index',
+                'resource' => 'application/utilities',
+                'privilege' => 'menu',
+                'class' => 'dropdown',
+                'order' => 100,
+                'pages' => [
+                    [
+                        'label' => 'Telestaff Upload',
+                        'route' => 'application/telestaff-import',
+                        'action' => 'index',
+                        'resource' => 'application/telestaff-import',
+                        'privilege' => 'index',
+                    ],
+                ],
+            ],
             'settings' => [
                 'label' => 'Settings',
                 'pages' => [
                     [
-                        'label' => 'Tax Document Upload',
+                        'label' => 'Document Upload',
                         'route' => 'application/files',
                         'action' => 'upload',
                         'resource' => 'application/files',
@@ -114,6 +164,11 @@ return [
         ],
         
     ],
+    'service_manager' => [
+        'aliases' => [
+            'unitedway-model-adapter' => 'timecard-model-adapter',
+        ],
+    ],
     'view_manager' => [
         'display_not_found_reason' => true,
         'display_exceptions'       => true,
@@ -123,10 +178,12 @@ return [
         'template_map' => [
             'navigation'              => __DIR__ . '/../view/partials/navigation.phtml',
             'flashmessenger'          => __DIR__ . '/../view/partials/flashmessenger.phtml',
+            'unitedway'               => __DIR__ . '/../view/application/united-way/internal.phtml',
             'layout/layout'           => __DIR__ . '/../../User/view/layout/user-layout.phtml',
             'application/index/index' => __DIR__ . '/../view/application/index/index.phtml',
             'error/404'               => __DIR__ . '/../view/error/404.phtml',
             'error/index'             => __DIR__ . '/../view/error/index.phtml',
+            'telestaff/config'        => __DIR__ . '/../view/application/telestaff/index.phtml',
         ],
         'template_path_stack' => [
             __DIR__ . '/../view',

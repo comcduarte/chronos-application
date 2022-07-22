@@ -11,12 +11,9 @@ declare(strict_types=1);
 namespace Application\Controller;
 
 use Application\Model\Entity\UserEntity;
-use Components\Form\Element\Treeview;
 use Files\Model\FilesModel;
 use Files\Traits\FilesAwareTrait;
 use Laminas\Db\Adapter\AdapterAwareTrait;
-use Laminas\Form\Form;
-use Laminas\Form\Element\Text;
 use Laminas\Http\Request as HttpRequest;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
@@ -79,74 +76,15 @@ class IndexController extends AbstractActionController
                     }
                     break;
                     
-                    /******************************
-                     * Filter out Paystubs
-                     * i.e.  HR_CITZ0038254160331.pdf
-                     * HR_CITZ0 | 038254 | 160331.pdf
-                     ******************************/
-                case preg_match('/.*(\d{6})(\d{6})/', $filename, $matches):
+                /******************************
+                 * Filter out Paystubs
+                 * i.e.  CITZ1605870059291006676.pdf
+                 * HR_CITZ0 | 160587 | 0 | 059291 | 006676.pdf
+                 ******************************/
+                case preg_match('/^CITZ(\d{6})(\d{7})(\d{6})/', $filename, $matches):
                     $check = $matches[1];
                     $warrant = $matches[2];
-                    
-//                     $text = $this->pdf2text($filepath);
-//                     $emp_matches = [];
-//                     preg_match('/Employee # (\d{6})/', $text, $emp_matches);
-//                     $this->flashMessenger()->addInfoMessage($emp_matches[1]);
-
-                    
-                    //----------------------------------------------------------------------
-                    $infile = @file_get_contents($filepath);
-                    if (empty($infile)) {
-                        continue 2;
-                    }
-                    
-                    /**
-                     * Retrieve list of objects
-                     */
-                    $objects = [];
-                    preg_match_all("#obj(.*)endobj#ismU", $infile, $objects);
-                    $objects = @$objects[1];
-                    
-                    $data['count_objects'] = count($objects);
-                    
-                    for ($i = 0; $i < count($objects); $i++) {
-                        $currentObject = $objects[$i];
-                        
-                        $options = $this->getObjectOptions($currentObject);
-                        
-                        if (!empty($options['Subtype']) && $options['Subtype'] == 'Image') {
-                            continue ;
-                        }
-                        
-                        $data[$i]['options'] = $options;
-                        
-                        $stream = [];
-                        $empnum = [];
-                        
-                        switch (TRUE) {
-                            case preg_match("#stream(.*)endstream#ismU", $currentObject, $stream):
-                                $stream = ltrim($stream[1]);
-                                $data[$i]['stream'] = $stream;
-                                $data[$i]['decoded stream'] = $this->getDecodedStream($stream, $options);
-                                if (preg_match('/Employee \# (\d{6})/', $data[$i]['decoded stream'], $empnum)) {
-                                    $employee = $empnum[1];
-//                                     $this->flashMessenger()->addInfoMessage($employee);
-                                }
-                                break;
-                            case preg_match("#\[(.*)\]#ismU", $currentObject, $stream):
-                                $data[$i]['stream'] = $stream[1];
-                                break;
-                            default:
-                                $data[$i]['stream'] = '<unknown>';
-                                break;
-                        }
-                        
-                        
-                        
-                    }
-                    //------------------------------------------------------------------
-                    
-                    $emp_num = $employee;
+                    $emp_num = $matches[3];
                     
                     if (!$user_entity->employee->read(['EMP_NUM' => $emp_num])) {
                         //** Error **//
@@ -163,8 +101,6 @@ class IndexController extends AbstractActionController
                     }
                     
                     $this->flashMessenger()->addInfoMessage("Paystub: Check Number: $check | Warrant: $warrant | Employee #: $emp_num");
-//                     $fi->next();
-//                     continue 2;
                     break;
                 default:
                     $this->flashMessenger()->addInfoMessage("No Case Applied: $filename");
@@ -196,68 +132,6 @@ class IndexController extends AbstractActionController
             return $this->redirect()->toUrl($url);
         }
         
-    }
-    
-    public function testAction()
-    {
-        $view = new ViewModel();
-        
-        /** Test Data **/
-        $data = [
-            'Beer' => [
-                'Bud Light',
-                'Coors Light',
-            ],
-            'Wine' => [
-                'Barefoot',
-                'B.R. Cohn',
-                'Robert Mondavi',
-            ],
-            'Water',
-            'Juice',
-            'Whiskey' => [
-                'Scotch' => [
-                    'Glenlivet',
-                    'Macallan',
-                    'Lagavulin' => [
-                        '16 Year Old',
-                        '18 Year Old',
-                    ],
-                ],
-                'Bourbon',
-                'Rye',
-            ],
-        ];
-        
-        $form = new Form('TEST-TREEVIEW');
-        
-        $form->add([
-            'name' => 'NAME',
-            'type' => Text::class,
-            'attributes' => [
-                'class' => 'form-control',
-                'id' => 'NAME',
-            ],
-            'options' => [
-                'label' => 'Name Field',
-            ],
-        ]);
-        
-        $form->add([
-            'name' => 'TREE',
-            'type' => Treeview::class,
-            'attributes' => [
-                'class' => 'form-control',
-                'id' => 'TREE',
-            ],
-            'options' => [
-                'label' => 'Tree View Field',
-                'data' => $data,
-            ],
-        ]);
-        
-        $view->setVariable('form', $form);
-        return $view;
     }
     
     private function tick(&$start_time, &$end_time, &$runtime, &$num_files)
