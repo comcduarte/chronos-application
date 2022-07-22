@@ -1,0 +1,27 @@
+[submodule "module/Acl"]
+	path = module/Acl
+	url = https://github.com/comcduarte/com-acl.git
+[submodule "module/Components"]
+	path = module/Components
+	url = https://github.com/comcduarte/com-ponents.git
+[submodule "module/Settings"]
+	path = module/Settings
+	url = https://github.com/comcduarte/com-settings.git
+[submodule "module/User"]
+	path = module/User
+	url = https://github.com/comcduarte/com-user.git
+[submodule "module/Employee"]
+	path = module/Employee
+	url = https://github.com/comcduarte/com-employee.git
+[submodule "module/Timecard"]
+	path = module/Timecard
+	url = https://github.com/comcduarte/com-timecard.git
+[submodule "module/Report"]
+	path = module/Report
+	url = https://github.com/comcduarte/com-report.git
+[submodule "module/Annotation"]
+	path = module/Annotation
+	url = https://github.com/comcduarte/com-annotation.git
+[submodule "module/Files"]
+	path = module/Files
+	url = https://github.com/comcduarte/com-files.git

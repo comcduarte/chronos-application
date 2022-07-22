@@ -1,0 +1,59 @@
+<?php
+/**
+ * @var Laminas\View\Renderer\PhpRenderer $this
+ */
+?>
+<div class="jumbotron">
+    <h1 class="display-4">Welcome to <b>Chronos</b></h1>
+
+    <p>
+        Chronos ("time"), also spelled Khronos or Chronus, is the personification of time in pre-Socratic philosophy and later literature.
+		Chronos already was confused with, or perhaps consciously identified with, the Titan Cronus in antiquity due to the similarity in names. The identification became more 
+		widespread during the Renaissance, giving rise to the allegory of "Father Time" wielding the harvesting scythe.
+		He was depicted in Greco-Roman mosaics as a man turning the Zodiac Wheel. Chronos might also be contrasted with the deity Aion as cyclical Time. 
+		Chronos is usually portrayed as an old, wise man with a long, grey beard, similar to Father Time. In some Greek sources, Kairos is mentioned as a brother of Chronos. 
+		However, other sources point out that it is his son.
+    </p>
+
+    <hr class="my-4">
+
+    <a class="btn btn-primary btn-lg" href="https://en.wikipedia.org/wiki/Chronos" target="_blank">Wikipedia &raquo;</a>
+</div>
+
+<div class="card-deck">
+    <div class="card">
+        <h2 class="card-header">Step 1: Login</h2>
+        <div class="card-body">
+            <p>
+                Log into the application using the same credentials (username and password) you log into your workstation with.
+            </p>
+        </div>
+        <div class="card-footer">
+        	<a class="btn btn-primary" href="<?php echo $this->url('user/login'); ?>">Login &raquo;</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2 class="card-header">Step 2: Enter Time</h2>
+        <div class="card-body">
+            <p>
+                Enter your time in the daily timesheet form.  Add additional pay codes using the tools at the bottom of the form.
+            </p>
+        </div>
+        <div class="card-footer">
+        	<a class="btn btn-primary" href="<?php echo $this->url('timecard/timesheet'); ?>">Timesheet &raquo;</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2 class="card-header">Help &amp; Support</h2>
+        <div class="card-body">
+            <p>
+                If you are having trouble submitting your timecard, please submit a Help Desk Ticket by following the link below.
+            </p>
+        </div>
+        <div class="card-footer">
+        	<a class="btn btn-primary" href="https://kbox.middletownct.gov/" target="_blank">Submit Ticket &raquo;</a>
+        </div>
+    </div>
+</div>
