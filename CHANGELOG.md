@@ -2,7 +2,15 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
-## 1.0.5 - TBD
+## 1.0.6 - TBD
+### Added
+
+### Changed
+- Include Detail Code in Notes field in Telestaff Import
+
+### Fixed
+
+## 1.0.5 - 2022-05-13
 ### Added
 - Import: Telestaff imported added to application for Police Department.
 

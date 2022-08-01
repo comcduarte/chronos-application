@@ -130,7 +130,7 @@ class TelestaffImportController extends AbstractConfigController
                             $annotation = new AnnotationModel($this->timecard_adapter);
                             $annotation->TABLENAME = $timecard->annotations_tablename;
                             $annotation->PRIKEY = $timecard->TIMECARD_UUID;
-                            $annotation->ANNOTATION = $record[$DATE] . " - " . $record[$NOTE];
+                            $annotation->ANNOTATION = sprintf('%s - %s - %s',$record[$DATE],$record[$DETC],$record[$NOTE]);
                             $annotation->USER = 'SYSTEM';
                             $annotation->create();
                             unset($annotation);
