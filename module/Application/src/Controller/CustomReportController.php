@@ -159,8 +159,6 @@ class CustomReportController extends ReportController
                                 $results['BLUESHEET']['Payroll Totals'][$code] = $paycode[$day];
                             }
                         }
-                        
-                        
                     }
                     break;
                 default:
@@ -176,11 +174,8 @@ class CustomReportController extends ReportController
                                 $results['BLUESHEET']['Payroll Totals'][$code] = $paycode[$day];
                             }
                         }
-                        
-                        
                     }
                     ksort($results['BLUESHEET']['Payroll Totals']);
-//                     ksort($results['EMPLOYEES'][$emp_index][$z]);
                     break;
             }
         }
