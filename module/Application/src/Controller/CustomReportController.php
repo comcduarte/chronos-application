@@ -116,7 +116,7 @@ class CustomReportController extends ReportController
         }
         
         foreach ($data as $i => $paycode) {
-            $emp_index = sprintf('%s-%s',$paycode['TIME_SUBGROUP'], $paycode['EMP_NUM']);
+            $emp_index = sprintf('%s-%s-%s', $paycode['TIME_GROUP'], $paycode['TIME_SUBGROUP'], $paycode['EMP_NUM']);
             $results['EMPLOYEES'][$emp_index]['RECORD'] = $paycode;
             switch (true) {
                 case array_search($paycode['CODE'], array_keys($accruals[1])):
