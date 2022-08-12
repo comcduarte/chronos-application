@@ -7,7 +7,7 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Changed
 - Include Detail Code in Notes field in Telestaff Import
-- Custom Report dept_time_card_v2 sorts by Time Group, Tim Subgroup, and Employee Number descending repectively.
+- Custom Report dept_time_card_v2 sorts by Time Group, Tim Subgroup, and Employee Number descending respectively.
 
 ### Fixed
 
