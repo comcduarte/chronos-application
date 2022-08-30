@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file, in reverse 
 - Include Detail Code in Notes field in Telestaff Import
 - Custom Report dept_time_card_v2 sorts by Time Group, Tim Subgroup, and Employee Number descending respectively.
 - Insert Page Breaks Between Employee. Keep all employee records from being split between pages when printing.
+- Do not allow Telestaff Import to update timecards above Submitted Status
 
 ### Fixed
 
