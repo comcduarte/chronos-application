@@ -2,7 +2,18 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
-## 1.0.5 - TBD
+## 1.0.6 - 2022-08-22
+### Added
+
+### Changed
+- Include Detail Code in Notes field in Telestaff Import
+- Custom Report dept_time_card_v2 sorts by Time Group, Tim Subgroup, and Employee Number descending respectively.
+- Insert Page Breaks Between Employee. Keep all employee records from being split between pages when printing.
+- Do not allow Telestaff Import to update timecards above Submitted Status
+
+### Fixed
+
+## 1.0.5 - 2022-05-13
 ### Added
 - Import: Telestaff imported added to application for Police Department.
 

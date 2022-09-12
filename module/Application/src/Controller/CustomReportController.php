@@ -99,10 +99,24 @@ class CustomReportController extends ReportController
                     '001' => 0,
                 ],
             ],
+            'REG_UUID' => 0,
         ];
         
+        /**
+         * Find UUID for 001 Regular Paycode
+         */
+        foreach ($data as $paycode) {
+            switch (true) {
+                case $paycode['CODE'] == '001':
+                    $results['REG_UUID'] = $paycode['UUID'];
+                    break 2;
+                default:
+                    break;
+            }
+        }
+        
         foreach ($data as $i => $paycode) {
-            $emp_index = sprintf('%s-%s',$paycode['TIME_SUBGROUP'], $paycode['EMP_NUM']);
+            $emp_index = sprintf('%s-%s-%s', $paycode['TIME_GROUP'], $paycode['TIME_SUBGROUP'], $paycode['EMP_NUM']);
             $results['EMPLOYEES'][$emp_index]['RECORD'] = $paycode;
             switch (true) {
                 case array_search($paycode['CODE'], array_keys($accruals[1])):
@@ -132,6 +146,21 @@ class CustomReportController extends ReportController
                         $results['BLUESHEET']['Payroll Totals']['001'] += $paycode['HOUR'];
                         continue 2;
                     }
+                case $paycode['PARENT'] == $results['REG_UUID']:
+                    $z = 'OT';
+                    foreach ($results['DOW'] as $day) {
+                        if ($paycode[$day]) {
+                            $results['EMPLOYEES'][$emp_index][$z][$paycode['CODE']][$day] = $paycode[$day];
+                            $code = '001'; //-- Force 001 Code --//
+                            
+                            if (!empty($results['BLUESHEET']['Payroll Totals'][$code])) {
+                                $results['BLUESHEET']['Payroll Totals'][$code] += $paycode[$day];
+                            } else {
+                                $results['BLUESHEET']['Payroll Totals'][$code] = $paycode[$day];
+                            }
+                        }
+                    }
+                    break;
                 default:
                     $z = 'OT';
                     foreach ($results['DOW'] as $day) {
@@ -145,11 +174,8 @@ class CustomReportController extends ReportController
                                 $results['BLUESHEET']['Payroll Totals'][$code] = $paycode[$day];
                             }
                         }
-                        
-                        
                     }
                     ksort($results['BLUESHEET']['Payroll Totals']);
-//                     ksort($results['EMPLOYEES'][$emp_index][$z]);
                     break;
             }
         }

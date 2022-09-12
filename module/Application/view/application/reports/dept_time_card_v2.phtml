@@ -1,6 +1,7 @@
 <style type="text/css" media="print">
     @media print{
         @page { size: landscape; }
+        div.employee { page-break-inside: avoid; }
     }
     body { 
         zoom: 65%; 
@@ -45,7 +46,7 @@ $work_week = $this->data['WORK_WEEK'];
 
 <?php foreach ($this->data['EMPLOYEES'] as $emp_index => $employee) : ?>
 <!-- BEGIN EMPLOYEE -->
-<div class="container-fluid border">
+<div class="container-fluid border employee">
 	<div class="row mt-4">
 		<div class="col"><?=$employee['RECORD']['LNAME']?>, <?=$employee['RECORD']['FNAME']?> [<?=$employee['RECORD']['EMP_NUM']?>]</div>
 	</div>

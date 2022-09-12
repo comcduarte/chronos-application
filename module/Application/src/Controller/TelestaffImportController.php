@@ -10,6 +10,7 @@ use Timecard\Model\PaycodeModel;
 use Timecard\Model\TimecardLineModel;
 use Timecard\Model\Entity\TimecardEntity;
 use Timecard\Traits\DateAwareTrait;
+use Timecard\Model\TimecardModel;
 
 class TelestaffImportController extends AbstractConfigController
 {
@@ -98,6 +99,14 @@ class TelestaffImportController extends AbstractConfigController
                             $timecard->getTimecard();
                         }
                         
+                        if ($timecard->STATUS >= TimecardModel::SUBMITTED_STATUS) {
+                            //-- Do not make modifications to Timecards that have already been submitted, or reviewed. --//
+                            $message = sprintf('Timecard for %s already has a status of %s and cannot be updated.', $record[$EMID], TimecardModel::retrieveStatus($timecard->STATUS));
+                            $this->flashmessenger()->addErrorMessage($message);
+                            $this->logger->info($message);
+                            continue;
+                        }
+                        
                         /****************************************
                          * Timecard Lines
                          ****************************************/
@@ -130,7 +139,7 @@ class TelestaffImportController extends AbstractConfigController
                             $annotation = new AnnotationModel($this->timecard_adapter);
                             $annotation->TABLENAME = $timecard->annotations_tablename;
                             $annotation->PRIKEY = $timecard->TIMECARD_UUID;
-                            $annotation->ANNOTATION = $record[$DATE] . " - " . $record[$NOTE];
+                            $annotation->ANNOTATION = sprintf('%s - %s - %s',$record[$DATE],$record[$DETC],$record[$NOTE]);
                             $annotation->USER = 'SYSTEM';
                             $annotation->create();
                             unset($annotation);
