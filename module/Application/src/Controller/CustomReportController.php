@@ -5,9 +5,12 @@ use Laminas\View\Model\ViewModel;
 use Report\Controller\ReportController;
 use Report\Model\ReportModel;
 use Timecard\Model\PaycodeModel;
+use Timecard\Traits\DateAwareTrait;
 
 class CustomReportController extends ReportController
 {
+    use DateAwareTrait;
+    
     public function viewAction()
     {
         $view = new ViewModel();
@@ -90,7 +93,7 @@ class CustomReportController extends ReportController
             'ACCRUALS' => $accruals[1],
             'ACCRUAL_LIST' => $accruals[0],
             'EMPLOYEES' => [],
-            'WORK_WEEK' => $data[0]['WORK_WEEK'],
+            'WORK_WEEK' => $this->getEndofWeek($data[0]['WORK_WEEK']),
             'DOW' => ['SUN','MON','TUE','WED','THU','FRI','SAT','DAYS'],
             'DEPT' => $data[0]['DEPT'],
             'BLUESHEET' => [

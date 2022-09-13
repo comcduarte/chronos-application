@@ -48,7 +48,7 @@ $work_week = $this->data['WORK_WEEK'];
 <!-- BEGIN EMPLOYEE -->
 <div class="container-fluid border employee">
 	<div class="row mt-4">
-		<div class="col"><?=$employee['RECORD']['LNAME']?>, <?=$employee['RECORD']['FNAME']?> [<?=$employee['RECORD']['EMP_NUM']?>]</div>
+		<div class="col"><a href="<?php echo $this->url('timecard/timesheet', ['uuid' => $employee['RECORD']['EMP_UUID'], 'week' => $work_week]); ?>"><?=$employee['RECORD']['LNAME']?>, <?=$employee['RECORD']['FNAME']?> [<?=$employee['RECORD']['EMP_NUM']?>]</a></div>
 	</div>
 	<div class="row">
 		<?php foreach ($this->data['ACCRUAL_LIST'] as $accrual) : ?>
