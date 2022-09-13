@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 1.0.7 - TBD
+
+### Changed
+- UploadFileForm has a RenameFile Input Filter, and we are removing the tmpname file, leaving upload in data file. Removed Input Filter.
+
 ## 1.0.6 - 2022-08-22
 ### Added
 

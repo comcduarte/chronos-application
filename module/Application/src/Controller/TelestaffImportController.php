@@ -27,7 +27,6 @@ class TelestaffImportController extends AbstractConfigController
         $view = parent::indexAction();
         $importForm = new UploadFileForm('TELESTAFF');
         $importForm->init();
-        $importForm->addInputFilter();
         $view->setVariable('importForm', $importForm);
         $view->setTemplate('telestaff/config');
         return $view;
