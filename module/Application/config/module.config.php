@@ -179,7 +179,7 @@ return [
             'navigation'              => __DIR__ . '/../view/partials/navigation.phtml',
             'flashmessenger'          => __DIR__ . '/../view/partials/flashmessenger.phtml',
             'unitedway'               => __DIR__ . '/../view/application/united-way/internal.phtml',
-            'layout/layout'           => __DIR__ . '/../../User/view/layout/user-layout.phtml',
+            'layout/layout'           => __DIR__ . '/../view/layout/custom-layout.phtml',
             'application/index/index' => __DIR__ . '/../view/application/index/index.phtml',
             'error/404'               => __DIR__ . '/../view/error/404.phtml',
             'error/index'             => __DIR__ . '/../view/error/index.phtml',
