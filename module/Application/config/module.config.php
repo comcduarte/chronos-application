@@ -11,7 +11,6 @@ declare(strict_types=1);
 namespace Application;
 
 use Application\Controller\CustomReportController;
-use Application\Controller\FilesController;
 use Application\Controller\IndexController;
 use Application\Controller\TelestaffImportController;
 use Application\Controller\UnitedWayController;
@@ -21,7 +20,6 @@ use Application\Controller\Factory\TelestaffImportControllerFactory;
 use Application\Controller\Factory\UnitedWayControllerFactory;
 use Laminas\Router\Http\Literal;
 use Laminas\Router\Http\Segment;
-use Laminas\ServiceManager\Factory\InvokableFactory;
 
 return [
     'router' => [
@@ -98,7 +96,7 @@ return [
     'controllers' => [
         'factories' => [
             IndexController::class => IndexControllerFactory::class,
-            FilesController::class => InvokableFactory::class,
+            Controller\FilesController::class => Controller\Factory\FilesControllerFactory::class,
             CustomReportController::class => CustomReportControllerFactory::class,
             UnitedWayController::class => UnitedWayControllerFactory::class,
             TelestaffImportController::class => TelestaffImportControllerFactory::class,
