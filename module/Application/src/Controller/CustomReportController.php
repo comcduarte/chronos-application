@@ -145,8 +145,23 @@ class CustomReportController extends ReportController
                     ksort($results['BLUESHEET']['Time Off Totals']);
                     break;
                 case $paycode['CODE'] == '001':
+                    $z = 'REGULAR';
+                    $total = 'Payroll Totals';
+                    foreach ($results['DOW'] as $day) {
+                        if ($paycode[$day]) {
+                            /**
+                             * For Accruals, if time is 8.5, move to 8
+                             */
+                            ($paycode[$day] == 8.5) ? $hours = 8 : $hours = $paycode[$day];
+                            
+                            $results['EMPLOYEES'][$emp_index][$z][$day][$paycode['CODE']] = $hours;
+                            $code = $paycode['CODE'];
+                        }
+                    }
+                    ksort($results['BLUESHEET'][$total]);
+                    
                     if ($paycode['HOUR'] > 0) {
-                        $results['BLUESHEET']['Payroll Totals']['001'] += $paycode['HOUR'];
+                        $results['BLUESHEET'][$total][$code] += $paycode['HOUR'];
                         continue 2;
                     }
                 case $paycode['PARENT'] == $results['REG_UUID']:

@@ -89,11 +89,13 @@ $work_week = $this->data['WORK_WEEK'];
     				/**
     				 * Increment Accrual Total
     				 */
-    				$accrual_index = sprintf('%s-%s',$employee['RECORD']['EMP_NUM'],$this->data['ACCRUALS'][$code]);
-    				if (!empty($accrual_totals[$accrual_index])) {
-    				    $accrual_totals[$accrual_index] += (float) $hours;
-    				} else {
-    				    $accrual_totals[$accrual_index] = (float) $hours;
+    				if (isset($this->data['ACCRUALS'][$code])) {
+    				    $accrual_index = sprintf('%s-%s',$employee['RECORD']['EMP_NUM'],$this->data['ACCRUALS'][$code]);
+        				if (!empty($accrual_totals[$accrual_index])) {
+        				    $accrual_totals[$accrual_index] += (float) $hours;
+        				} else {
+        				    $accrual_totals[$accrual_index] = (float) $hours;
+        				}
     				}
     				?>
             		<div class="col"><?=$day?></div>
