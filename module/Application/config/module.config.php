@@ -55,6 +55,16 @@ return [
                 ],
                 'may_terminate' => TRUE,
                 'child_routes' => [
+                    'cron' => [
+                        'type'    => Segment::class,
+                        'options' => [
+                            'route'    => '/cron',
+                            'defaults' => [
+                                'controller' => Controller\CronController::class,
+                                'action' => 'cron',
+                            ],
+                        ],
+                    ],
                     'files' => [
                         'type'    => Segment::class,
                         'options' => [
@@ -96,6 +106,7 @@ return [
     'controllers' => [
         'factories' => [
             IndexController::class => IndexControllerFactory::class,
+            Controller\CronController::class => Controller\Factory\CronControllerFactory::class,
             Controller\FilesController::class => Controller\Factory\FilesControllerFactory::class,
             CustomReportController::class => CustomReportControllerFactory::class,
             UnitedWayController::class => UnitedWayControllerFactory::class,
