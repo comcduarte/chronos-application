@@ -34,6 +34,7 @@ class TelestaffImportController extends AbstractConfigController
     
     public function importAction()
     {
+        set_time_limit(10);
         $this->logger->info('Started Telestaff Import');
         
         /****************************************

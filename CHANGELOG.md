@@ -3,12 +3,15 @@
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
 ## 1.0.7 - TBD
-### Fixed
-- Upgraded Bootstrap to 5.2.1. Made changes to support compatibility.
+### Added
+- Cron Action Controller for scheduled tasks.
 
 ### Changed
 - Add hyperlink to report to open timecards.
 - UploadFileForm has a RenameFile Input Filter, and we are removing the tmpname file, leaving upload in data file. Removed Input Filter.
+- Include 001 hours per day in v2 report
+- Upgraded Bootstrap to 5.2.1. Made changes to support compatibility.
+- Moved Document Upload to Files Controller
 
 ## 1.0.6 - 2022-08-22
 ### Added
