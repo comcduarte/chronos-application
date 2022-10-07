@@ -1,0 +1,129 @@
+<style type="text/css" media="print">
+    @media print{
+        @page { size: landscape; }
+        div.employee { page-break-inside: avoid; }
+    }
+    body { 
+        zoom: 65%; 
+    }
+    div.page-break { page-break-after: always; }
+</style>
+
+<h1><?=$data['DEPT']?> -- Payroll Information</h1>
+<h3>Totals for Week Ending: <?=$data['WORK_WEEK']?></h3>
+<hr>
+
+<div class="container-fluid page-break">
+	<div class="row">
+		<?php foreach ($data['BLUESHEET'] as $title => $paycode) : ?>
+		<div class="col-6">
+			<h3><?=$title?></h3>
+			<div class="container">
+				<?php foreach ($paycode as $code => $hours) : ?>
+				<div class="row">
+					<div class="col-1 d-flex justify-content-end"><?=$code?></div>
+					<div class="col-2 d-flex justify-content-end">[<?=number_format($hours,2);?>]</div>
+				</div>
+				<?php endforeach; ?>
+			</div>
+		</div>
+		<?php endforeach; ?>
+	</div>
+</div>
+
+<?php foreach ($data['EMPLOYEES'] as $emp_index => $employee) : ?>
+<!-- BEGIN EMPLOYEE -->
+<div class="container-fluid border employee">
+	<div class="row mt-4">
+		<div class="col"><a href="<?php echo $this->url('timecard/timesheet', ['uuid' => $employee['RECORD']['EMP_UUID'], 'week' => $data['WORK_WEEK']]); ?>"><?=$employee['RECORD']['LNAME']?>, <?=$employee['RECORD']['FNAME']?> [<?=$employee['RECORD']['EMP_NUM']?>]</a></div>
+	</div>
+	<div class="row">
+		<?php foreach ($data['ACCRUAL_LIST'] as $accrual) : ?>
+		<!-- BEGIN ACCRUAL -->
+		<div class="col">(<?=$accrual?>)</div>
+		<!-- END ACCRUAL -->
+		<?php endforeach; ?>
+	</div>
+	<div class="row">
+		<?php foreach ($data['ACCRUAL_LIST'] as $accrual) : ?>
+		<!-- BEGIN ACCRUAL -->
+		<div id="<?=sprintf('%s-%s-%s',$employee['RECORD']['EMP_NUM'],$accrual,'col');?>" class="col border"><span id="<?=sprintf('%s-%s',$employee['RECORD']['EMP_NUM'],$accrual);?>"></span></div>
+		<!-- END ACCRUAL -->
+		<?php endforeach; ?>
+	</div>
+	
+	<!-- Daily Header Row -->
+	<div class="row">
+		<?php for ($i=0; $i < 5; $i++) : ?>
+		<div class="col-2">
+			<div class="row">
+				<div class="col">Day</div>
+        		<div class="col">Hrs</div>
+        		<div class="col">Code</div>
+			</div>
+		</div>
+		<?php endfor; ?>
+	</div>
+	
+	<!-- BEGIN REGULAR ROW -->
+	
+	
+	<!-- END REGULAR ROW -->
+	
+	<?php if (!empty($employee['OT'])) : ?>
+	<!-- BEGIN OVERTIME ROWS -->
+	<?php foreach ($employee['OT'] as $code => $record) : ?>
+	<?php $total = 0; ?>
+	<div class="row">
+		<?php foreach ($data['DOW'] as $day) : ?>
+    		<?php if (!empty($record[$day])) : ?>
+    		
+    		<?php $total += $record[$day]; ?>
+    		<div class="col-2 border">
+    			<div class="row">
+            		<div class="col"><?=$day?></div>
+            		<div class="col"><?=$record[$day]?></div>
+            		<div class="col"><?=$code?></div>
+        		</div>
+    		</div>
+    		
+    		<?php 
+    		if (isset($data['ACCRUALS'][$code])) {
+    		    $accrual_index = sprintf('%s-%s',$employee['RECORD']['EMP_NUM'],$data['ACCRUALS'][$code]);
+    		    if (!empty($accrual_totals[$accrual_index])) {
+    		        $accrual_totals[$accrual_index] += (float) $record[$day];
+    		    } else {
+    		        $accrual_totals[$accrual_index] = (float) $record[$day];
+    		    }
+    		}
+    		?>
+    		<?php endif; ?>
+		<?php endforeach; ?>
+		
+		<!-- FILLER COL -->
+		<div class="col"></div>
+		
+		<!-- BEGIN TOTAL OVERTIME HOURS -->
+		<div class="col-1">
+			<div class="row">
+				<div class="col"><?=$code?></div>
+				<div class="col d-flex justify-content-end"><?=number_format($total,2);?></div>
+				
+				
+			</div>
+		</div>
+		<!-- END TOTAL OVERTIME HOURS -->
+	</div>
+	<?php endforeach; ?>
+	<!-- END OVERTIME ROWS -->
+	<?php endif; ?>
+</div>
+<?php endforeach; ?>
+
+<!-- POPULATE ACCRUAL TOTALS -->
+<script type="text/javascript">
+<?php foreach ($accrual_totals as $accrual => $total) : ?>
+	document.getElementById("<?=$accrual?>").innerHTML = "<?=number_format($total,2);?>";
+	document.getElementById("<?=$accrual?>-col").className = "col border bg-primary text-light rounded-left rounded-right";
+<?php endforeach; ?>
+</script>

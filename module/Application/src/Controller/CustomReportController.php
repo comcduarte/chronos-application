@@ -94,7 +94,7 @@ class CustomReportController extends ReportController
             'ACCRUAL_LIST' => $accruals[0],
             'EMPLOYEES' => [],
             'WORK_WEEK' => $this->getEndofWeek($data[0]['WORK_WEEK']),
-            'DOW' => ['SUN','MON','TUE','WED','THU','FRI','SAT','DAYS'],
+            'DOW' => ['MON','TUE','WED','THU','FRI','SAT','SUN','DAYS'],
             'DEPT' => $data[0]['DEPT'],
             'BLUESHEET' => [
                 'Time Off Totals' => [],
@@ -200,4 +200,142 @@ class CustomReportController extends ReportController
         ksort($results['EMPLOYEES']);
         return $results;
     }
+
+    private function dept_time_cards_v3($data)
+    {
+        /******************************
+         * Data Parameter Structure
+         * $data = [
+         *    0 => [
+         *       [EMP_NUM],
+         *       [FNAME],
+         *       [LNAME],
+         *       [TIME_GROUP],
+         *       [TIME_SUBGROUP],
+         *       [SHIFT_CODE],
+         *       [EMP_UUID],
+         *       [DEPT],
+         *       [UUID],
+         *       [CODE],
+         *       [DESC],
+         *       [CAT],
+         *       [PARENT],
+         *       [PAY_TYPE],
+         *       [ACCURAL],
+         *       [SUN]-[DAYS],
+         *       [WORK_WEEK],
+         *    ],
+         * ];
+         * 
+         ******************************/
+        
+        
+        /******************************
+         * Initialize return data structure.
+         ******************************/
+        $results = [
+            'ACCRUALS' => [],
+            'ACCRUAL_LIST' => [],
+            'EMPLOYEES' => [],
+            'WORK_WEEK' => $this->getEndofWeek($data[0]['WORK_WEEK']),
+            'DOW' => ['MON','TUE','WED','THU','FRI','SAT','SUN','DAYS'],
+            'DEPT' => $data[0]['DEPT'],
+            'BLUESHEET' => [
+                'Codes' => [],
+                'Time Off Totals' => [],
+                'Payroll Totals' => [
+                    '001' => 0,
+                ],
+            ],
+            'REG_UUID' => 0,
+        ];
+        
+        /******************************
+         * Retrieve list of Accrual Codes
+         ******************************/
+        $pm = new PaycodeModel($this->adapter);
+        $accruals = $pm->get_accruals();
+        $results['ACCRUALS'] = $accruals[1];
+        $results['ACCRUAL_LIST'] = $accruals[0];
+        
+        /******************************
+         * Find UUID for 001 Regular Paycode
+         ******************************/
+        foreach ($data as $paycode) {
+            switch (true) {
+                case $paycode['CODE'] == '001':
+                    $results['REG_UUID'] = $paycode['UUID'];
+                    break 2;
+                default:
+                    break;
+            }
+        }
+        
+        /******************************
+         * Process
+         ******************************/
+        foreach ($data as $paycode) {
+            $emp_index = sprintf('%s-%s-%s', $paycode['TIME_GROUP'], $paycode['TIME_SUBGROUP'], $paycode['EMP_NUM']);
+            $results['EMPLOYEES'][$emp_index]['RECORD'] = $paycode;
+            
+            if (empty($results['BLUESHEET']['Codes'][$paycode['CODE']])) {
+                $results['BLUESHEET']['Codes'][$paycode['CODE']] = intval(0);
+            }
+            
+            foreach ($results['DOW'] as $day) {
+                if ($paycode[$day]) {
+                    $results['EMPLOYEES'][$emp_index]['OT'][$paycode['CODE']][$day] = $paycode[$day];
+                    $results['BLUESHEET']['Codes'][$paycode['CODE']] += $paycode[$day];
+                }
+            }
+        }
+        
+        /******************************
+         * Sorting
+         ******************************/
+        foreach ($results['EMPLOYEES'] as $index => $record) {
+            if (isset($record['REGULAR'])) { ksort($results['EMPLOYEES'][$index]['REGULAR']); }
+            if (isset($record['OT'])) { ksort($results['EMPLOYEES'][$index]['OT']); }
+        }
+        ksort($results['BLUESHEET']['Codes']);
+        ksort($results['EMPLOYEES']);
+        
+        /**
+         * Separate the Codes array into their respective lists and sort.
+         */
+        foreach ($results['ACCRUAL_LIST'] as $accrual) {
+            if (isset($results['BLUESHEET']['Codes'][$accrual])) {
+                $results['BLUESHEET']['Time Off Totals'][$accrual] = $results['BLUESHEET']['Codes'][$accrual];
+                unset($results['BLUESHEET']['Codes'][$accrual]);
+            }
+        }
+        $results['BLUESHEET']['Payroll Totals'] = $results['BLUESHEET']['Codes'];
+        
+        unset($results['BLUESHEET']['Codes']);
+        ksort($results['BLUESHEET']['Payroll Totals']);
+        ksort($results['BLUESHEET']['Time Off Totals']);
+        
+        /******************************
+         * Return Result Structure
+         * $results = [
+         *    'EMPLOYEES' => [
+         *       '000-000-000000' => [
+         *          'RECORD' =>    //-- Original Record from Data 
+         *          'REGULAR' => [
+         *             '<DOW>' => [
+         *                '<CODE>' => '<HOURS>',
+         *             ],
+         *          ], 
+         *          'OT' => [
+         *             '<DOW>' => [
+         *                '<CODE>' => '<HOURS>',
+         *             ],
+         *          ],
+         *       ],
+         *    ],
+         * ];
+         ******************************/
+        return $results;
+    }
+
 }
