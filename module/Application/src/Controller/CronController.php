@@ -68,7 +68,7 @@ class CronController extends AbstractActionController
                  */
                 foreach ($record as $field => $value) {
                     if ($field == 'DEPT' ) {
-                        $department->read(['CODE' => $record['DEPT']]);
+                        $department->read(['CODE' => $record['TIME_GROUP']]);
                         $value = $department->UUID;
                     }
                     
