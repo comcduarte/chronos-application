@@ -78,7 +78,7 @@
 		<?php foreach ($data['DOW'] as $day) : ?>
     		<?php if (!empty($record[$day])) : ?>
     		
-    		<?php $total += $record[$day]; ?>
+    		<?php //-- $total += $record[$day]; ?>
     		<div class="col-2 border">
     			<div class="row">
             		<div class="col"><?=$day?></div>
@@ -99,7 +99,7 @@
     		?>
     		<?php endif; ?>
 		<?php endforeach; ?>
-		
+		<?php $total = $employee['TOTALS'][$code]; ?>
 		<!-- FILLER COL -->
 		<div class="col"></div>
 		
@@ -108,8 +108,6 @@
 			<div class="row">
 				<div class="col"><?=$code?></div>
 				<div class="col d-flex justify-content-end"><?=number_format($total,2);?></div>
-				
-				
 			</div>
 		</div>
 		<!-- END TOTAL OVERTIME HOURS -->

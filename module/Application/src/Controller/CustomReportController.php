@@ -278,14 +278,62 @@ class CustomReportController extends ReportController
             $emp_index = sprintf('%s-%s-%s', $paycode['TIME_GROUP'], $paycode['TIME_SUBGROUP'], $paycode['EMP_NUM']);
             $results['EMPLOYEES'][$emp_index]['RECORD'] = $paycode;
             
+            /**
+             * Find Work Week
+             */
+            if ($paycode['WORK_WEEK'] != NULL) {
+                $results['WORK_WEEK'] = $this->getEndofWeek($paycode['WORK_WEEK']);
+            }
+            
+            /**
+             * If total was not initialized yet, set to zero.
+             */
             if (empty($results['BLUESHEET']['Codes'][$paycode['CODE']])) {
                 $results['BLUESHEET']['Codes'][$paycode['CODE']] = intval(0);
             }
             
+            /**
+             * If line total was not initialized, set to zero.
+             */
+            if (empty($results['EMPLOYEES'][$emp_index]['TOTALS'][$paycode['CODE']])) {
+                $results['EMPLOYEES'][$emp_index]['TOTALS'][$paycode['CODE']] = intval(0);
+            }
+            
             foreach ($results['DOW'] as $day) {
                 if ($paycode[$day]) {
+                    /**
+                     * Individual Day Total
+                     */
                     $results['EMPLOYEES'][$emp_index]['OT'][$paycode['CODE']][$day] = $paycode[$day];
+                    
+                    /**
+                     * Bluesheet Total
+                     */
                     $results['BLUESHEET']['Codes'][$paycode['CODE']] += $paycode[$day];
+                    
+                    /**
+                     * Employee Line Total
+                     */
+                    $results['EMPLOYEES'][$emp_index]['TOTALS'][$paycode['CODE']] += $paycode[$day];
+                }
+                
+                /**
+                 * Increase parent code if specified.
+                 */
+                if ($paycode['PARENT'] != NULL) {
+                    $pm->read(['UUID' => $paycode['PARENT']]);
+                    if (empty($results['BLUESHEET']['Codes'][$pm->CODE])) {
+                        $results['BLUESHEET']['Codes'][$pm->CODE] = intval(0);
+                    }
+                    $results['BLUESHEET']['Codes'][$pm->CODE] += $paycode[$day];
+                    
+                    /**
+                     * Increase Line Total
+                     */
+                    if (empty($results['EMPLOYEES'][$emp_index]['TOTALS'][$pm->CODE])) {
+                        $results['EMPLOYEES'][$emp_index]['TOTALS'][$pm->CODE] = intval(0);
+                    }
+                    $results['EMPLOYEES'][$emp_index]['TOTALS'][$pm->CODE] += $paycode[$day];
                 }
             }
         }
@@ -331,11 +379,13 @@ class CustomReportController extends ReportController
          *                '<CODE>' => '<HOURS>',
          *             ],
          *          ],
+         *          'TOTALS' => [
+         *              '<CODE>' => '<HOURS>',
+         *          ],
          *       ],
          *    ],
          * ];
          ******************************/
         return $results;
     }
-
 }
