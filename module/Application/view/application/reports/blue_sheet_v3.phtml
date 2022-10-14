@@ -1,0 +1,31 @@
+<?php
+echo $this->partial('timecard/reports/report_header.phtml', [
+    'user' => $this->currentUser(),
+    'work_week' => $data['WORK_WEEK'],
+]);
+$pay_types = ['Regular','Overtime','Premium','Unproductive','Other/Unpaid'];
+
+?>
+
+<div class="container-fluid">
+	<div class="row">
+		<div class="col">Pay Code</div>
+		<div class="col">Timesheet Group</div>
+		<div class="col">Regular</div>
+		<div class="col">Overtime</div>
+		<div class="col">Premium</div>
+		<div class="col">Unproductive</div>
+		<div class="col">Other/Unpaid</div>
+		<div class="col">Total</div>
+	</div>
+	<?php foreach ($data['BLUESHEET'] as $i => $record) : ?>
+	<div class="row">
+		<div class="col"><?php echo $record['PAYCODE']; ?></div>
+		<div class="col"><?php echo $record['TIMESHEET_GROUP']; ?></div>
+		<?php foreach ($pay_types as $type) : ?>
+		<div class="col"><?php if (isset($record[$type]['HOURS'])) { echo $record[$type]['HOURS']; }?></div>
+		<?php endforeach; ?>
+		<div class="col">Total</div>
+	</div>
+	<?php endforeach; ?>
+</div>

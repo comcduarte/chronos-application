@@ -59,6 +59,94 @@ class CustomReportController extends ReportController
         return $data;
     }
     
+    private function dept_blue_sheet_v3($data)
+    {
+        /******************************
+         * Data Parameter Structure
+         * $data = [
+         *    0 => [
+         *       [UUID],
+         *       [STATUS],
+         *       [DATE_CREATED],
+         *       [DATE_MODIFIED],
+         *       [WORK_WEEK],
+         *       [TIMECARD_UUID],
+         *       [PAY_UUID],
+         *       [SUN]-[DAYS],
+         *       [ORD],
+         *       [EMP_UUID],
+         *    ],
+         * ];
+         *
+         ******************************/
+        
+        /******************************
+         * Initialize return data structure.
+         ******************************/
+        $results = [
+            'ACCRUALS' => [],
+            'ACCRUAL_LIST' => [],
+            'WORK_WEEK' => NULL,
+            'DOW' => ['MON','TUE','WED','THU','FRI','SAT','SUN'],
+            'DEPT' => NULL,
+            'BLUESHEET' => [],
+            'REG_UUID' => 0,
+        ];
+        
+        /******************************
+         * Retrieve list of Accrual Codes
+         ******************************/
+        $pm = new PaycodeModel($this->adapter);
+        $accruals = $pm->get_accruals();
+        $results['ACCRUALS'] = $accruals[1];
+        $results['ACCRUAL_LIST'] = $accruals[0];
+
+        /******************************
+         * Process
+         ******************************/
+        foreach ($data as $paycode) {
+            $index = sprintf('%s-%s-%s', $paycode['CODE'], $paycode['TIME_GROUP'], $paycode['TIME_SUBGROUP']);
+            
+            /**
+             * Find Work Week
+             */
+            if ($paycode['WORK_WEEK'] != NULL && $results['WORK_WEEK'] == NULL) {
+                $results['WORK_WEEK'] = $this->getEndofWeek($paycode['WORK_WEEK']);
+            }
+            
+            $hours = 0;
+            $days = 0;
+            
+            foreach ($results['DOW'] as $day) {
+                $hours += floatval($paycode[$day]);
+            }
+            $days = $paycode['DAYS'];
+            
+            $results['BLUESHEET'][$index] = [
+                'PAYCODE' => sprintf('%s - %s', $paycode['CODE'],  $paycode['DESC']),
+                'TIMESHEET_GROUP' => sprintf('%s-%s', $paycode['TIME_GROUP'], $paycode['TIME_SUBGROUP']),
+                $paycode['PAY_TYPE'] => [
+                    'HOURS' => $hours,
+                    'DAYS' => $days,
+                ],
+            ];
+            
+            /******************************
+             * Add hours to parent if present
+             ******************************/
+            if ($paycode['PARENT']) {
+                $pm->read(['UUID' => $paycode['PARENT']]);
+                $index = sprintf('%s-%s-%s', $pm->CODE, $paycode['TIME_GROUP'], $paycode['TIME_SUBGROUP']);
+                
+                $results['BLUESHEET'][$index]['Regular']['HOURS'] += $hours;
+                $results['BLUESHEET'][$index]['Regular']['DAYS'] += $days;
+            }
+        }
+        
+        ksort($results['BLUESHEET']);
+        return $results;
+    }
+    
     private function dept_time_cards($data) 
     {
         $dow = ['SUN','MON','TUE','WED','THU','FRI','SAT','DAYS'];
@@ -351,10 +439,13 @@ class CustomReportController extends ReportController
         /**
          * Separate the Codes array into their respective lists and sort.
          */
-        foreach ($results['ACCRUAL_LIST'] as $accrual) {
-            if (isset($results['BLUESHEET']['Codes'][$accrual])) {
-                $results['BLUESHEET']['Time Off Totals'][$accrual] = $results['BLUESHEET']['Codes'][$accrual];
-                unset($results['BLUESHEET']['Codes'][$accrual]);
+        foreach ($results['ACCRUALS'] as $code => $accrual) {
+            if (isset($results['BLUESHEET']['Codes'][$code])) {
+                if (empty($results['BLUESHEET']['Time Off Totals'][$accrual])) {
+                    $results['BLUESHEET']['Time Off Totals'][$accrual] = intval(0);
+                }
+                $results['BLUESHEET']['Time Off Totals'][$accrual] += $results['BLUESHEET']['Codes'][$code];
+                unset($results['BLUESHEET']['Codes'][$code]);
             }
         }
         $results['BLUESHEET']['Payroll Totals'] = $results['BLUESHEET']['Codes'];
