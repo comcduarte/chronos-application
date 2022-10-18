@@ -387,6 +387,13 @@ class CustomReportController extends ReportController
                 $results['EMPLOYEES'][$emp_index]['TOTALS'][$paycode['CODE']] = intval(0);
             }
             
+            /**
+             * Initialze Regular Paycode Line - Required 
+             */
+            if (empty($results['EMPLOYEES'][$emp_index]['OT']['001'])) {
+                $results['EMPLOYEES'][$emp_index]['OT']['001'] = [];
+            }
+            
             foreach ($results['DOW'] as $day) {
                 if ($paycode[$day]) {
                     /**
@@ -423,6 +430,24 @@ class CustomReportController extends ReportController
                     }
                     $results['EMPLOYEES'][$emp_index]['TOTALS'][$pm->CODE] += $paycode[$day];
                 }
+            }
+            
+            /**
+             * Calculate Shift Code Values
+             */
+            if (floatval($paycode['HOUR']) > 0) {
+                if (empty($results['BLUESHEET']['Codes']['001'])) {
+                    $results['BLUESHEET']['Codes']['001'] = intval(0);
+                }
+                
+                if (empty($results['EMPLOYEES'][$emp_index]['TOTALS']['001'])) {
+                    $results['EMPLOYEES'][$emp_index]['TOTALS']['001'] = intval(0);
+                }
+                
+                $diff = $paycode['HOUR'] - $results['EMPLOYEES'][$emp_index]['TOTALS']['001'];
+                $results['BLUESHEET']['Codes']['001'] += $diff;
+                
+                $results['EMPLOYEES'][$emp_index]['TOTALS']['001'] = $paycode['HOUR'];
             }
         }
         
