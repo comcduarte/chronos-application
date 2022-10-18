@@ -34,7 +34,8 @@ class TelestaffImportController extends AbstractConfigController
     
     public function importAction()
     {
-        set_time_limit(10);
+        //-- set_time_limit(10);
+        ini_set('auto_detect_line_endings',TRUE);
         $this->logger->info('Started Telestaff Import');
         
         /****************************************
@@ -72,7 +73,7 @@ class TelestaffImportController extends AbstractConfigController
             if ($form->isValid()) {
                 $data = $form->getData();
                 if (($handle = fopen($data['FILE']['tmp_name'],"r")) !== FALSE) {
-                    while (($record = fgetcsv($handle, 1000, ",")) !== FALSE) {
+                    while (($record = fgetcsv($handle, NULL, ",")) !== FALSE) {
                         /****************************************
                          * Employees
                          ****************************************/
