@@ -74,6 +74,12 @@ class TelestaffImportController extends AbstractConfigController
                 if (($handle = fopen($data['FILE']['tmp_name'],"r")) !== FALSE) {
                     while (($record = fgetcsv($handle, NULL, ",")) !== FALSE) {
                         /****************************************
+                         * Corrections
+                         ****************************************/
+                        if ($record[$HOUR] == 8.5) { $record[$HOUR] = 8; }
+                        if ($record[$CODE] == 'HOL') { $record[$CODE] = '001'; }
+                        
+                        /****************************************
                          * Employees
                          ****************************************/
                         $emp = new EmployeeModel($this->employee_adapter);
