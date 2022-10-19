@@ -1,3 +1,10 @@
+<style type="text/css" media="screen, print">
+    @page
+    {
+        size: ledger landscape;
+        margin: 25px;
+    }
+</style>
 <?php
 echo $this->partial('timecard/reports/report_header.phtml', [
     'user' => $this->currentUser(),
@@ -6,26 +13,34 @@ echo $this->partial('timecard/reports/report_header.phtml', [
 $pay_types = ['Regular','Overtime','Premium','Unproductive','Other/Unpaid'];
 
 ?>
-
 <div class="container-fluid">
 	<div class="row">
 		<div class="col">Pay Code</div>
 		<div class="col">Timesheet Group</div>
-		<div class="col">Regular</div>
-		<div class="col">Overtime</div>
-		<div class="col">Premium</div>
-		<div class="col">Unproductive</div>
-		<div class="col">Other/Unpaid</div>
-		<div class="col">Total</div>
+		<?php foreach ($pay_types as $type) : ?>
+		<div class="col">
+			<div class="row">
+				<div class="col text-center"><?php echo $type; ?></div>
+			</div>
+			<div class="row">
+    			<div class="col text-center">Hours</div>
+    			<div class="col text-center">Days</div>
+			</div>
+		</div>
+		<?php endforeach; ?>
 	</div>
 	<?php foreach ($data['BLUESHEET'] as $i => $record) : ?>
-	<div class="row">
+	<div class="row border">
 		<div class="col"><?php echo $record['PAYCODE']; ?></div>
 		<div class="col"><?php echo $record['TIMESHEET_GROUP']; ?></div>
 		<?php foreach ($pay_types as $type) : ?>
-		<div class="col"><?php if (isset($record[$type]['HOURS'])) { echo $record[$type]['HOURS']; }?></div>
+		<div class="col">
+			<div class="row">
+    			<div class="col text-right"><?php if (isset($record[$type]['HOURS'])) { echo number_format($record[$type]['HOURS'],2); }?></div>
+    			<div class="col text-right"><?php if (isset($record[$type]['DAYS'])) { echo number_format($record[$type]['DAYS'],2); }?></div>
+			</div>
+		</div>
 		<?php endforeach; ?>
-		<div class="col">Total</div>
 	</div>
 	<?php endforeach; ?>
 </div>
