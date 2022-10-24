@@ -4,6 +4,7 @@
         size: ledger landscape;
         margin: 25px;
     }
+    div.page-break { page-break-after: always; }
 </style>
 <?php
 echo $this->partial('timecard/reports/report_header.phtml', [
@@ -44,3 +45,5 @@ $pay_types = ['Regular','Overtime','Premium','Unproductive','Other/Unpaid'];
 	</div>
 	<?php endforeach; ?>
 </div>
+
+<div class="page-break"></div>

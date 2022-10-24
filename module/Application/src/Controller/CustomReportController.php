@@ -66,15 +66,15 @@ class CustomReportController extends ReportController
          * $data = [
          *    0 => [
          *       [UUID],
-         *       [STATUS],
-         *       [DATE_CREATED],
-         *       [DATE_MODIFIED],
-         *       [WORK_WEEK],
-         *       [TIMECARD_UUID],
-         *       [PAY_UUID],
+         *       [CODE],
+         *       [DESC],
+         *       [CAT],
+         *       [PAY_TYPE],
+         *       [PARENT],
          *       [SUN]-[DAYS],
-         *       [ORD],
-         *       [EMP_UUID],
+         *       [TIME_GROUP],
+         *       [TIME_SUBGROUP],
+         *       [WORK_WEEK]
          *    ],
          * ];
          *
@@ -145,6 +145,48 @@ class CustomReportController extends ReportController
         
         ksort($results['BLUESHEET']);
         return $results;
+    }
+    
+    private function dept_blue_sheet_v3_all($data)
+    {
+        /******************************
+         * Data Parameter Structure
+         * $data = [
+         *    0 => [
+         *       [UUID],
+         *       [STATUS],
+         *       [DATE_CREATED],
+         *       [DATE_MODIFIED],
+         *       [WORK_WEEK],
+         *       [TIMECARD_UUID],
+         *       [PAY_UUID],
+         *       [SUN]-[DAYS],
+         *       [ORD],
+         *       [EMP_UUID],
+         *    ],
+         * ];
+         *
+         ******************************/
+        
+        $results = [];
+        
+        /**
+         * Separate records into primary time groups
+         */
+        foreach ($data as $record) {
+            $results[$record['TIME_GROUP']][] = $record;
+        }
+        
+        /**
+         * Send each time group to the individual report function
+         */
+        $processed = [];
+        foreach ($results as $tg => $array) {
+            $processed[$tg] = $this->dept_blue_sheet_v3($array);
+        }
+        
+        ksort($processed);
+        return $processed;
     }
     
     private function dept_time_cards($data) 
@@ -503,5 +545,54 @@ class CustomReportController extends ReportController
          * ];
          ******************************/
         return $results;
+    }
+
+    private function dept_time_cards_v3_all($data)
+    {
+        /******************************
+         * Data Parameter Structure
+         * $data = [
+         *    0 => [
+         *       [EMP_NUM],
+         *       [FNAME],
+         *       [LNAME],
+         *       [TIME_GROUP],
+         *       [TIME_SUBGROUP],
+         *       [SHIFT_CODE],
+         *       [EMP_UUID],
+         *       [DEPT],
+         *       [UUID],
+         *       [CODE],
+         *       [DESC],
+         *       [CAT],
+         *       [PARENT],
+         *       [PAY_TYPE],
+         *       [ACCURAL],
+         *       [SUN]-[DAYS],
+         *       [WORK_WEEK],
+         *    ],
+         * ];
+         *
+         ******************************/
+        
+        $results = [];
+        
+        /**
+         * Separate records into primary time groups
+         */
+        foreach ($data as $record) {
+            $results[$record['TIME_GROUP']][] = $record;
+        }
+        
+        /**
+         * Send each time group to the individual report function
+         */
+        $processed = [];
+        foreach ($results as $tg => $array) {
+            $processed[$tg] = $this->dept_time_cards_v3($array);
+        }
+        
+        ksort($processed);
+        return $processed;
     }
 }
