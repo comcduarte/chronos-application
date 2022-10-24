@@ -134,7 +134,7 @@ class CustomReportController extends ReportController
             /******************************
              * Add hours to parent if present
              ******************************/
-            if ($paycode['PARENT']) {
+            if ($paycode['PARENT'] && $paycode['CAT'] != 'REG') {
                 $pm->read(['UUID' => $paycode['PARENT']]);
                 $index = sprintf('%s-%s-%s', $pm->CODE, $paycode['TIME_GROUP'], $paycode['TIME_SUBGROUP']);
                 
