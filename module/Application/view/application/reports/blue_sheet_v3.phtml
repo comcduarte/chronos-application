@@ -7,43 +7,51 @@
     div.page-break { page-break-after: always; }
 </style>
 <?php
-echo $this->partial('timecard/reports/report_header.phtml', [
-    'user' => $this->currentUser(),
-    'work_week' => $data['WORK_WEEK'],
+echo $this->partial('application/reports/report_header.phtml', [
+    'USER' => $this->currentUser(),
+    'WORK_WEEK' => $data['WORK_WEEK'],
+    'DEPT' => $data['DEPT'],
 ]);
 $pay_types = ['Regular','Overtime','Premium','Unproductive','Other/Unpaid'];
 
 ?>
-<div class="container-fluid">
-	<div class="row">
-		<div class="col">Pay Code</div>
-		<div class="col">Timesheet Group</div>
-		<?php foreach ($pay_types as $type) : ?>
-		<div class="col">
-			<div class="row">
-				<div class="col text-center"><?php echo $type; ?></div>
-			</div>
-			<div class="row">
-    			<div class="col text-center">Hours</div>
-    			<div class="col text-center">Days</div>
-			</div>
-		</div>
+<table class="table table-sm table-striped">
+	<thead>
+		<tr>
+			<th>Pay Code</th>
+			<th>Timesheet Group</th>
+			<?php foreach ($pay_types as $type) : ?>
+			<th colspan="2"><?php echo $type; ?></th>
+			<?php endforeach; ?>
+		</tr>
+		<tr>
+			<th colspan="2"></th>
+			<?php foreach ($pay_types as $type) : ?>
+			<th>Hours</th>
+			<th>Days</th>
+			<?php endforeach; ?>
+		</tr>
+	</thead>
+	<tbody>
+		<?php foreach ($data['BLUESHEET'] as $i => $record) : ?>
+		<tr>
+			<td><?php echo $record['PAYCODE']; ?></td>
+			<td><?php echo $record['TIMESHEET_GROUP']; ?></td>
+			<?php foreach ($pay_types as $type) : ?>
+			<td><?php if (isset($record[$type]['HOURS'])) { echo number_format($record[$type]['HOURS'],2); }?></td>
+			<td><?php if (isset($record[$type]['DAYS'])) { echo number_format($record[$type]['DAYS'],2); }?></td>
+			<?php endforeach; ?>
+		</tr>
 		<?php endforeach; ?>
-	</div>
-	<?php foreach ($data['BLUESHEET'] as $i => $record) : ?>
-	<div class="row border">
-		<div class="col"><?php echo $record['PAYCODE']; ?></div>
-		<div class="col"><?php echo $record['TIMESHEET_GROUP']; ?></div>
-		<?php foreach ($pay_types as $type) : ?>
-		<div class="col">
-			<div class="row">
-    			<div class="col text-right"><?php if (isset($record[$type]['HOURS'])) { echo number_format($record[$type]['HOURS'],2); }?></div>
-    			<div class="col text-right"><?php if (isset($record[$type]['DAYS'])) { echo number_format($record[$type]['DAYS'],2); }?></div>
-			</div>
-		</div>
-		<?php endforeach; ?>
-	</div>
-	<?php endforeach; ?>
-</div>
-
+	</tbody>
+	<tfoot class="border">
+		<tr>
+			<td colspan="2">*** GRAND TOTAL ***</td>
+			<?php foreach ($pay_types as $type) : ?>
+			<td><?php if (isset($data['TOTALS'][$type]['HOURS'])) { echo number_format($data['TOTALS'][$type]['HOURS'],2); }?></td>
+			<td><?php if (isset($data['TOTALS'][$type]['DAYS'])) { echo number_format($data['TOTALS'][$type]['DAYS'],2); }?></td>
+			<?php endforeach; ?>
+		</tr>
+	</tfoot>
+</table>
 <div class="page-break"></div>

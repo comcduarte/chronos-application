@@ -8,10 +8,13 @@
     }
     div.page-break { page-break-after: always; }
 </style>
-
-<h1><?=$data['DEPT']?> -- Payroll Information</h1>
-<h3>Totals for Week Ending: <?=$data['WORK_WEEK']?></h3>
-<hr>
+<?php
+echo $this->partial('application/reports/report_header.phtml', [
+    'USER' => $this->currentUser(),
+    'WORK_WEEK' => $data['WORK_WEEK'],
+    'DEPT' => $data['DEPT'],
+]);
+?>
 
 <div class="container-fluid page-break">
 	<div class="row">

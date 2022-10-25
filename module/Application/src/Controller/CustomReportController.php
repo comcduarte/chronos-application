@@ -6,10 +6,13 @@ use Report\Controller\ReportController;
 use Report\Model\ReportModel;
 use Timecard\Model\PaycodeModel;
 use Timecard\Traits\DateAwareTrait;
+use Employee\Model\DepartmentModel;
 
 class CustomReportController extends ReportController
 {
     use DateAwareTrait;
+    
+    public $employee_adapter;
     
     public function viewAction()
     {
@@ -74,7 +77,8 @@ class CustomReportController extends ReportController
          *       [SUN]-[DAYS],
          *       [TIME_GROUP],
          *       [TIME_SUBGROUP],
-         *       [WORK_WEEK]
+         *       [WORK_WEEK],
+         *       [DEPT],
          *    ],
          * ];
          *
@@ -91,6 +95,7 @@ class CustomReportController extends ReportController
             'DEPT' => NULL,
             'BLUESHEET' => [],
             'REG_UUID' => 0,
+            'TOTALS' => [],
         ];
         
         /******************************
@@ -100,6 +105,13 @@ class CustomReportController extends ReportController
         $accruals = $pm->get_accruals();
         $results['ACCRUALS'] = $accruals[1];
         $results['ACCRUAL_LIST'] = $accruals[0];
+        
+        /******************************
+         * Retrieve Department
+         ******************************/
+        $dm = new DepartmentModel($this->employee_adapter);
+        $dm->read(['UUID' => $data[0]['DEPT']]);
+        $results['DEPT'] = $dm->NAME;
 
         /******************************
          * Process
@@ -112,6 +124,16 @@ class CustomReportController extends ReportController
              */
             if ($paycode['WORK_WEEK'] != NULL && $results['WORK_WEEK'] == NULL) {
                 $results['WORK_WEEK'] = $this->getEndofWeek($paycode['WORK_WEEK']);
+            }
+            
+            /******************************
+             * Initialize Unknown Pay Type
+             ******************************/
+            if (!isset($results['TOTALS'][$paycode['PAY_TYPE']])) {
+                $results['TOTALS'][$paycode['PAY_TYPE']] = [
+                    'HOURS' => floatval(0),
+                    'DAYS' => floatval(0),
+                ];
             }
             
             $hours = 0;
@@ -130,6 +152,12 @@ class CustomReportController extends ReportController
                     'DAYS' => $days,
                 ],
             ];
+            
+            /******************************
+             * Add hours to total for Pay Types
+             ******************************/
+            $this->increment($results['TOTALS'][$paycode['PAY_TYPE']]['HOURS'], $hours);
+            $this->increment($results['TOTALS'][$paycode['PAY_TYPE']]['DAYS'], $days);
             
             /******************************
              * Add hours to parent if present
@@ -154,15 +182,16 @@ class CustomReportController extends ReportController
          * $data = [
          *    0 => [
          *       [UUID],
-         *       [STATUS],
-         *       [DATE_CREATED],
-         *       [DATE_MODIFIED],
-         *       [WORK_WEEK],
-         *       [TIMECARD_UUID],
-         *       [PAY_UUID],
+         *       [CODE],
+         *       [DESC],
+         *       [CAT],
+         *       [PAY_TYPE],
+         *       [PARENT],
          *       [SUN]-[DAYS],
-         *       [ORD],
-         *       [EMP_UUID],
+         *       [TIME_GROUP],
+         *       [TIME_SUBGROUP],
+         *       [WORK_WEEK],
+         *       [DEPT],
          *    ],
          * ];
          *
@@ -594,5 +623,11 @@ class CustomReportController extends ReportController
         
         ksort($processed);
         return $processed;
+    }
+    
+    private function increment(&$value, $increment, $precision = "float")
+    {
+        $value += floatval($increment);
+        return floatval($value);
     }
 }

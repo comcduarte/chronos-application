@@ -19,6 +19,8 @@ class CustomReportControllerFactory implements FactoryInterface
         $model = new ReportModel($adapter);
         $form = $container->get('FormElementManager')->get(ReportForm::class);
         
+        $controller->employee_adapter = $container->get('employee-model-adapter');
+        
         $controller->setModel($model);
         $controller->setForm($form);
         

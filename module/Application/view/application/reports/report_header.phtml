@@ -1,14 +1,15 @@
-<div class="container">
+<div class="container-fluid">
     <div class="row">
-    	<div class="col-2">
+    	<div class="col-1">
     		<img src="<?= $this->basePath('img/cityseal.png') ?>" height="100px" alt="Middletown, CT" />
     	</div>
-    	<div class="col-7">
+    	<div class="col-7 text-left">
     		<h1>City of Middletown</h1>
-    		<h1><?=$user?></h1>
+    		<h1><?=$DEPT?></h1>
     	</div>
-    	<div class="col-3">
-    		Week Ending: <?=$work_week; ?>
+    	<div class="col text-right">
+    		Week Ending: <?=$WORK_WEEK; ?><br>
+    		Printed on <?php $date = new \DateTime('now',new \DateTimeZone('UTC')); echo $date->format('Y-m-d H:i:s');?> by <?=$USER->USERNAME?>
     	</div>
     </div>
     <div class="row">
