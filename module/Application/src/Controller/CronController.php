@@ -68,8 +68,11 @@ class CronController extends AbstractActionController
                  */
                 foreach ($record as $field => $value) {
                     if ($field == 'DEPT' ) {
-                        $department->read(['CODE' => $record['TIME_GROUP']]);
-                        $value = $department->UUID;
+                        if ( $department->read(['CODE' => str_pad($record['TIME_GROUP'], 5, 0, STR_PAD_RIGHT)]) ) {
+                            $value = $department->UUID;
+                        } else {
+                            continue;
+                        }
                     }
                     
                     $validator = new Identical($value);
