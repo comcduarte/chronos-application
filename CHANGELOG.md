@@ -2,7 +2,11 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
-## 1.0.7 - TBD
+## 1.0.8
+### Fixed
+- Corrected Department Lookup
+
+## 1.0.7 - 2022-11-01
 ### Added
 - Cron Action Controller for scheduled tasks.
 
