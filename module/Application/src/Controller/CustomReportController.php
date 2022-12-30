@@ -434,7 +434,20 @@ class CustomReportController extends ReportController
          * Process
          ******************************/
         foreach ($data as $paycode) {
+            /**
+             * Initialize employee structure
+             */
             $emp_index = sprintf('%s-%s-%s', $paycode['TIME_GROUP'], $paycode['TIME_SUBGROUP'], $paycode['EMP_NUM']);
+            if (!isset($results['EMPLOYEES'][$emp_index])) {
+                $results['EMPLOYEES'][$emp_index] = [
+                    'RECORD' => "",
+                    'OT' => [],
+                    'TOTALS' => [
+                        '001' => 0,
+                    ],
+                ];
+            }
+            
             $results['EMPLOYEES'][$emp_index]['RECORD'] = $paycode;
             
             /**

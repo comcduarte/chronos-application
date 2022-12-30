@@ -107,12 +107,14 @@ echo $this->partial('application/reports/report_header.phtml', [
 		<div class="col"></div>
 		
 		<!-- BEGIN TOTAL OVERTIME HOURS -->
+		<?php if (!isset($data['ACCRUALS'][$code])) : ?>
 		<div class="col-1">
 			<div class="row">
 				<div class="col"><?=$code?></div>
 				<div class="col d-flex justify-content-end"><?=number_format($total,2);?></div>
 			</div>
 		</div>
+		<?php endif; ?>
 		<!-- END TOTAL OVERTIME HOURS -->
 	</div>
 	<?php endforeach; ?>
