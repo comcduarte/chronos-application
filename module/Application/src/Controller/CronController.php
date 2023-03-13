@@ -104,6 +104,13 @@ class CronController extends AbstractActionController
                  * New Employee
                  */
                 foreach ($record as $field => $value) {
+                    if ($field == 'DEPT' ) {
+                        if ( $department->read(['CODE' => str_pad($value, 5, 0, STR_PAD_RIGHT)]) ) {
+                            $value = $department->UUID;
+                        } else {
+                            continue;
+                        }
+                    }
                     $employee->$field = $value;
                 }
                 
