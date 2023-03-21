@@ -40,7 +40,8 @@ class CronController extends AbstractActionController
             'DEPT' => 'DEPT_NUM',
             'POSITION' => 'POS_NUM',
             'POSITION_DESC' => 'POS_DESC',
-            
+            'SHIFT_CODE' => 'SHIFT_CODE',
+            'SHIFT_CODE_DESC' => 'SHIFT_CODE_DESC'
         ]);
         
         
