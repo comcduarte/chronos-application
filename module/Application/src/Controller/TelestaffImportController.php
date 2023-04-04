@@ -8,9 +8,9 @@ use Employee\Model\EmployeeModel;
 use Laminas\View\Model\ViewModel;
 use Timecard\Model\PaycodeModel;
 use Timecard\Model\TimecardLineModel;
+use Timecard\Model\TimecardModel;
 use Timecard\Model\Entity\TimecardEntity;
 use Timecard\Traits\DateAwareTrait;
-use Timecard\Model\TimecardModel;
 
 class TelestaffImportController extends AbstractConfigController
 {
@@ -141,7 +141,7 @@ class TelestaffImportController extends AbstractConfigController
                         /****************************************
                          * Annotations
                          ****************************************/
-                        if ($record[$NOTE]) {
+                        if ($record[$NOTE] || $record[$DETC]) {
                             $annotation = new AnnotationModel($this->timecard_adapter);
                             $annotation->TABLENAME = $timecard->annotations_tablename;
                             $annotation->PRIKEY = $timecard->TIMECARD_UUID;
