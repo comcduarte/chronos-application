@@ -8,9 +8,9 @@ use Employee\Model\EmployeeModel;
 use Laminas\View\Model\ViewModel;
 use Timecard\Model\PaycodeModel;
 use Timecard\Model\TimecardLineModel;
+use Timecard\Model\TimecardModel;
 use Timecard\Model\Entity\TimecardEntity;
 use Timecard\Traits\DateAwareTrait;
-use Timecard\Model\TimecardModel;
 
 class TelestaffImportController extends AbstractConfigController
 {
@@ -27,7 +27,6 @@ class TelestaffImportController extends AbstractConfigController
         $view = parent::indexAction();
         $importForm = new UploadFileForm('TELESTAFF');
         $importForm->init();
-        $importForm->addInputFilter();
         $view->setVariable('importForm', $importForm);
         $view->setTemplate('telestaff/config');
         return $view;
@@ -35,6 +34,7 @@ class TelestaffImportController extends AbstractConfigController
     
     public function importAction()
     {
+        ini_set('auto_detect_line_endings',TRUE);
         $this->logger->info('Started Telestaff Import');
         
         /****************************************
@@ -72,7 +72,23 @@ class TelestaffImportController extends AbstractConfigController
             if ($form->isValid()) {
                 $data = $form->getData();
                 if (($handle = fopen($data['FILE']['tmp_name'],"r")) !== FALSE) {
-                    while (($record = fgetcsv($handle, 1000, ",")) !== FALSE) {
+                    while (($record = fgetcsv($handle, NULL, ",")) !== FALSE) {
+                        /****************************************
+                         * Corrections
+                         ****************************************/
+                        if ($record[$CODE] == 'HOL') { $record[$CODE] = '001'; }
+                        
+                        $pc = new PaycodeModel($this->timecard_adapter);
+                        $respc = $pc->read(['CODE' => $record[$CODE]]);
+                        if (!$respc) {
+                            $this->logger->info("Paycode does not exist: " . $record[$CODE]);
+                            continue;
+                        }
+                        
+                        if ($pc->ACCRUAL || $record[$CODE] == '001') {
+                            if ($record[$HOUR] == 8.5) { $record[$HOUR] = 8; }
+                        }
+                        
                         /****************************************
                          * Employees
                          ****************************************/
@@ -113,13 +129,6 @@ class TelestaffImportController extends AbstractConfigController
                         $day = $dow[date('w', strtotime($record[$DATE]))];
                         
                         $tcl = new TimecardLineModel($this->adapter);
-                        $pc = new PaycodeModel($this->timecard_adapter);
-                        $respc = $pc->read(['CODE' => $record[$CODE]]);
-                        if (!$respc) {
-                            $this->logger->info("Paycode does not exist: " . $record[$CODE]);
-                            continue;
-                        }
-                        
                         $restcl = $tcl->read(['PAY_UUID' => $pc->UUID, 'TIMECARD_UUID' => $timecard->TIMECARD_UUID]);
                         if ($restcl) {
                             $tcl->$day += $record[$HOUR];
@@ -135,7 +144,7 @@ class TelestaffImportController extends AbstractConfigController
                         /****************************************
                          * Annotations
                          ****************************************/
-                        if ($record[$NOTE]) {
+                        if ($record[$NOTE] || $record[$DETC]) {
                             $annotation = new AnnotationModel($this->timecard_adapter);
                             $annotation->TABLENAME = $timecard->annotations_tablename;
                             $annotation->PRIKEY = $timecard->TIMECARD_UUID;

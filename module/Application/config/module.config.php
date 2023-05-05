@@ -11,7 +11,6 @@ declare(strict_types=1);
 namespace Application;
 
 use Application\Controller\CustomReportController;
-use Application\Controller\FilesController;
 use Application\Controller\IndexController;
 use Application\Controller\TelestaffImportController;
 use Application\Controller\UnitedWayController;
@@ -21,7 +20,6 @@ use Application\Controller\Factory\TelestaffImportControllerFactory;
 use Application\Controller\Factory\UnitedWayControllerFactory;
 use Laminas\Router\Http\Literal;
 use Laminas\Router\Http\Segment;
-use Laminas\ServiceManager\Factory\InvokableFactory;
 
 return [
     'router' => [
@@ -57,6 +55,16 @@ return [
                 ],
                 'may_terminate' => TRUE,
                 'child_routes' => [
+                    'cron' => [
+                        'type'    => Segment::class,
+                        'options' => [
+                            'route'    => '/cron',
+                            'defaults' => [
+                                'controller' => Controller\CronController::class,
+                                'action' => 'cron',
+                            ],
+                        ],
+                    ],
                     'files' => [
                         'type'    => Segment::class,
                         'options' => [
@@ -98,7 +106,8 @@ return [
     'controllers' => [
         'factories' => [
             IndexController::class => IndexControllerFactory::class,
-            FilesController::class => InvokableFactory::class,
+            Controller\CronController::class => Controller\Factory\CronControllerFactory::class,
+            Controller\FilesController::class => Controller\Factory\FilesControllerFactory::class,
             CustomReportController::class => CustomReportControllerFactory::class,
             UnitedWayController::class => UnitedWayControllerFactory::class,
             TelestaffImportController::class => TelestaffImportControllerFactory::class,
@@ -179,7 +188,7 @@ return [
             'navigation'              => __DIR__ . '/../view/partials/navigation.phtml',
             'flashmessenger'          => __DIR__ . '/../view/partials/flashmessenger.phtml',
             'unitedway'               => __DIR__ . '/../view/application/united-way/internal.phtml',
-            'layout/layout'           => __DIR__ . '/../../User/view/layout/user-layout.phtml',
+            'layout/layout'           => __DIR__ . '/../view/layout/custom-layout.phtml',
             'application/index/index' => __DIR__ . '/../view/application/index/index.phtml',
             'error/404'               => __DIR__ . '/../view/error/404.phtml',
             'error/index'             => __DIR__ . '/../view/error/index.phtml',

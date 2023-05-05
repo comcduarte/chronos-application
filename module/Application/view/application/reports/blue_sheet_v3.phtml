@@ -1,0 +1,57 @@
+<style type="text/css" media="screen, print">
+    @page
+    {
+        size: ledger landscape;
+        margin: 25px;
+    }
+    div.page-break { page-break-after: always; }
+</style>
+<?php
+echo $this->partial('application/reports/report_header.phtml', [
+    'USER' => $this->currentUser(),
+    'WORK_WEEK' => $data['WORK_WEEK'],
+    'DEPT' => $data['DEPT'],
+]);
+$pay_types = ['Regular','Overtime','Premium','Unproductive','Other/Unpaid'];
+
+?>
+<table class="table table-sm table-striped">
+	<thead>
+		<tr>
+			<th>Pay Code</th>
+			<th>Timesheet Group</th>
+			<?php foreach ($pay_types as $type) : ?>
+			<th colspan="2"><?php echo $type; ?></th>
+			<?php endforeach; ?>
+		</tr>
+		<tr>
+			<th colspan="2"></th>
+			<?php foreach ($pay_types as $type) : ?>
+			<th>Hours</th>
+			<th>Days</th>
+			<?php endforeach; ?>
+		</tr>
+	</thead>
+	<tbody>
+		<?php foreach ($data['BLUESHEET'] as $i => $record) : ?>
+		<tr>
+			<td><?php echo $record['PAYCODE']; ?></td>
+			<td><?php echo $record['TIMESHEET_GROUP']; ?></td>
+			<?php foreach ($pay_types as $type) : ?>
+			<td><?php if (isset($record[$type]['HOURS'])) { echo number_format($record[$type]['HOURS'],2); }?></td>
+			<td><?php if (isset($record[$type]['DAYS'])) { echo number_format($record[$type]['DAYS'],2); }?></td>
+			<?php endforeach; ?>
+		</tr>
+		<?php endforeach; ?>
+	</tbody>
+	<tfoot class="border">
+		<tr>
+			<td colspan="2">*** GRAND TOTAL ***</td>
+			<?php foreach ($pay_types as $type) : ?>
+			<td><?php if (isset($data['TOTALS'][$type]['HOURS'])) { echo number_format($data['TOTALS'][$type]['HOURS'],2); }?></td>
+			<td><?php if (isset($data['TOTALS'][$type]['DAYS'])) { echo number_format($data['TOTALS'][$type]['DAYS'],2); }?></td>
+			<?php endforeach; ?>
+		</tr>
+	</tfoot>
+</table>
+<div class="page-break"></div>

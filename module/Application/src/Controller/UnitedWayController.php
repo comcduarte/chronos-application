@@ -62,6 +62,7 @@ class UnitedWayController extends AbstractBaseController
          ******************************/
         $where = new Where();
         $where->equalTo('EMP_UUID', $user_entity->employee->UUID);
+        $where->equalTo('STATUS', 1);
         $records = $this->model->fetchAll($where);
         
         if (!empty($records)) {
@@ -109,6 +110,7 @@ class UnitedWayController extends AbstractBaseController
          ******************************/
         $where = new Where();
         $where->equalTo('EMP_UUID', $user_entity->employee->UUID);
+        $where->equalTo('STATUS', 1);
         $records = $this->model->fetchAll($where);
         
         if (!empty($records)) {

@@ -1,0 +1,129 @@
+<?php 
+global $report_data;
+global $work_week;
+
+$report_data = [];
+$pay_types = ['Regular','Overtime','Premium','Unproductive','Other/Unpaid'];
+$dow = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+
+function add_hours($record) {
+    global $report_data;
+    $total = 0;
+    $dow = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+    
+    foreach ($dow as $day) {
+        $total += floatval($record[$day]);
+    }
+    
+    $tempval = $total;
+    if (array_key_exists('Totals', $report_data) && array_key_exists($record['PAY_TYPE'], $report_data['Totals'])) {
+        if (isset($report_data['Totals'][$record['PAY_TYPE']]['HOURS'])) {
+            $tempval += floatval($report_data['Totals'][$record['PAY_TYPE']]['HOURS']);
+        }
+    }
+    $report_data['Totals'][$record['PAY_TYPE']]['HOURS'] = $tempval;
+    
+    return $total;
+}
+
+function add_days($record) {
+    global $report_data;
+    $tempval = 0;
+    $tempval += floatval($record['DAYS']);
+    
+    if (array_key_exists('Totals', $report_data) && array_key_exists($record['PAY_TYPE'], $report_data['Totals'])) {
+        if (isset($report_data['Totals'][$record['PAY_TYPE']]['DAYS'])) {
+            $tempval += floatval($report_data['Totals'][$record['PAY_TYPE']]['DAYS']);
+        }
+    }
+    $report_data['Totals'][$record['PAY_TYPE']]['DAYS'] = $tempval;
+    
+    return floatval($record['DAYS']);
+}
+
+if (!isset($work_week)) {
+    $work_week = $data[0]['WORK_WEEK'];
+}
+
+/****************************************
+ * INITIALIZE TOTALS
+ ****************************************/
+foreach ($pay_types as $type) {
+    $report_data['Totals'][$type]['HOURS'] = 0;
+    $report_data['Totals'][$type]['DAYS'] = 0;
+}
+
+foreach ($this->data as $paycode) {
+    $index = sprintf('%s-%s-%s', $paycode['CODE'], $paycode['TIME_GROUP'], $paycode['TIME_SUBGROUP']);
+    $report_data[$index] = [
+        'Paycode' => sprintf('%s - %s', $paycode['CODE'], $paycode['DESC']),
+        'Timesheet Group' => sprintf('%s-%s', $paycode['TIME_GROUP'], $paycode['TIME_SUBGROUP']),
+        $paycode['PAY_TYPE'] => [
+            'HOURS' => add_hours($paycode),
+            'DAYS' => add_days($paycode),
+        ],
+    ];
+}
+
+
+?>
+<table class="table table-sm">
+	<thead>
+		<tr>
+			<td colspan="3"></td>
+			<td colspan="2">Regular</td>
+			<td colspan="2">Overtime</td>
+			<td colspan="2">Premium</td>
+			<td colspan="2">Unproductive</td>
+			<td colspan="2">Other/Unpaid</td>
+		</tr>
+		<tr>
+			<td colspan="2">Pay Code</td>
+			<td>Timesheet Group</td>
+			<td>Hours</td>
+			<td>Days</td>
+			<td>Hours</td>
+			<td>Days</td>
+			<td>Hours</td>
+			<td>Days</td>
+			<td>Hours</td>
+			<td>Days</td>
+			<td>Hours</td>
+			<td>Days</td>
+		</tr>
+	</thead>
+	<tbody>
+	<?php foreach ($report_data as $paycode) : ?>
+		<?php if (array_key_exists('Paycode', $paycode)) : ?>
+		<tr>
+			<td colspan="2"><?=$paycode['Paycode']?></td>
+			<td><?=$paycode['Timesheet Group']?></td>
+			<td><?php if (array_key_exists('Regular', $paycode)) { echo $paycode['Regular']['HOURS']; } ?></td>
+			<td><?php if (array_key_exists('Regular', $paycode)) { echo $paycode['Regular']['DAYS']; } ?></td>
+			<td><?php if (array_key_exists('Overtime', $paycode)) { echo $paycode['Overtime']['HOURS']; } ?></td>
+			<td><?php if (array_key_exists('Overtime', $paycode)) { echo $paycode['Overtime']['DAYS']; } ?></td>
+			<td><?php if (array_key_exists('Premium', $paycode)) { echo $paycode['Premium']['HOURS']; } ?></td>
+			<td><?php if (array_key_exists('Premium', $paycode)) { echo $paycode['Premium']['DAYS']; } ?></td>
+			<td><?php if (array_key_exists('Unproductive', $paycode)) { echo $paycode['Unproductive']['HOURS']; } ?></td>
+			<td><?php if (array_key_exists('Unproductive', $paycode)) { echo $paycode['Unproductive']['DAYS']; } ?></td>
+			<td><?php if (array_key_exists('Other/Unpaid', $paycode)) { echo $paycode['Other/Unpaid']['HOURS']; } ?></td>
+			<td><?php if (array_key_exists('Other/Unpaid', $paycode)) { echo $paycode['Other/Unpaid']['DAYS']; } ?></td>
+		</tr>
+		<?php endif; ?>
+	<?php endforeach; ?>
+		<?php $totals = $report_data['Totals'];?>
+		<tr>
+			<td colspan="3">Totals</td>
+			<td><?php if (array_key_exists('Regular', $totals)) { echo $totals['Regular']['HOURS']; } ?></td>
+			<td><?php if (array_key_exists('Regular', $totals)) { echo $totals['Regular']['DAYS']; } ?></td>
+			<td><?php if (array_key_exists('Overtime', $totals)) { echo $totals['Overtime']['HOURS']; } ?></td>
+			<td><?php if (array_key_exists('Overtime', $totals)) { echo $totals['Overtime']['DAYS']; } ?></td>
+			<td><?php if (array_key_exists('Premium', $totals)) { echo $totals['Premium']['HOURS']; } ?></td>
+			<td><?php if (array_key_exists('Premium', $totals)) { echo $totals['Premium']['DAYS']; } ?></td>
+			<td><?php if (array_key_exists('Unproductive', $totals)) { echo $totals['Unproductive']['HOURS']; } ?></td>
+			<td><?php if (array_key_exists('Unproductive', $totals)) { echo $totals['Unproductive']['DAYS']; } ?></td>
+			<td><?php if (array_key_exists('Other/Unpaid', $totals)) { echo $totals['Other/Unpaid']['HOURS']; } ?></td>
+			<td><?php if (array_key_exists('Other/Unpaid', $totals)) { echo $totals['Other/Unpaid']['DAYS']; } ?></td>
+		</tr>
+	</tbody>
+</table>

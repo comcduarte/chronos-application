@@ -1,0 +1,1 @@
+curl https://chronos.middletownct.gov/application/cron

@@ -8,26 +8,17 @@
     }
     div.page-break { page-break-after: always; }
 </style>
-
 <?php
-global $report_data;
-global $employees;
-global $work_week;
-global $accrual_totals;
-
-$accrual_totals = [];
-$current_employee = 0;
-$total = 0;
-$work_week = $this->data['WORK_WEEK'];
+echo $this->partial('application/reports/report_header.phtml', [
+    'USER' => $this->currentUser(),
+    'WORK_WEEK' => $data['WORK_WEEK'],
+    'DEPT' => $data['DEPT'],
+]);
 ?>
-
-<h1><?=$this->data['DEPT']?> -- Payroll Information</h1>
-<h3>Totals for Week Ending: <?=$work_week?></h3>
-<hr>
 
 <div class="container-fluid page-break">
 	<div class="row">
-		<?php foreach ($this->data['BLUESHEET'] as $title => $paycode) : ?>
+		<?php foreach ($data['BLUESHEET'] as $title => $paycode) : ?>
 		<div class="col-6">
 			<h3><?=$title?></h3>
 			<div class="container">
@@ -43,22 +34,21 @@ $work_week = $this->data['WORK_WEEK'];
 	</div>
 </div>
 
-
-<?php foreach ($this->data['EMPLOYEES'] as $emp_index => $employee) : ?>
+<?php foreach ($data['EMPLOYEES'] as $emp_index => $employee) : ?>
 <!-- BEGIN EMPLOYEE -->
 <div class="container-fluid border employee">
 	<div class="row mt-4">
-		<div class="col"><a href="<?php echo $this->url('timecard/timesheet', ['uuid' => $employee['RECORD']['EMP_UUID'], 'week' => $work_week]); ?>"><?=$employee['RECORD']['LNAME']?>, <?=$employee['RECORD']['FNAME']?> [<?=$employee['RECORD']['EMP_NUM']?>]</a></div>
+		<div class="col"><a href="<?php echo $this->url('timecard/timesheet', ['uuid' => $employee['RECORD']['EMP_UUID'], 'week' => $data['WORK_WEEK']]); ?>"><?=$employee['RECORD']['LNAME']?>, <?=$employee['RECORD']['FNAME']?> [<?=$employee['RECORD']['EMP_NUM']?>]</a></div>
 	</div>
 	<div class="row">
-		<?php foreach ($this->data['ACCRUAL_LIST'] as $accrual) : ?>
+		<?php foreach ($data['ACCRUAL_LIST'] as $accrual) : ?>
 		<!-- BEGIN ACCRUAL -->
 		<div class="col">(<?=$accrual?>)</div>
 		<!-- END ACCRUAL -->
 		<?php endforeach; ?>
 	</div>
 	<div class="row">
-		<?php foreach ($this->data['ACCRUAL_LIST'] as $accrual) : ?>
+		<?php foreach ($data['ACCRUAL_LIST'] as $accrual) : ?>
 		<!-- BEGIN ACCRUAL -->
 		<div id="<?=sprintf('%s-%s-%s',$employee['RECORD']['EMP_NUM'],$accrual,'col');?>" class="col border"><span id="<?=sprintf('%s-%s',$employee['RECORD']['EMP_NUM'],$accrual);?>"></span></div>
 		<!-- END ACCRUAL -->
@@ -77,58 +67,21 @@ $work_week = $this->data['WORK_WEEK'];
 		</div>
 		<?php endfor; ?>
 	</div>
-
+	
 	<!-- BEGIN REGULAR ROW -->
-	<div class="row">
-		<?php foreach ($this->data['DOW'] as $day) : ?>
-    		<?php if (!empty($employee['REGULAR'][$day])) : ?>
-    		<div class="col-2 border">
-    			<div class="row bg-primary text-light rounded-left rounded-right row-cols-3">
-    				<?php 
-    				foreach ($employee['REGULAR'][$day] as $code => $hours) {
-    				/**
-    				 * Increment Accrual Total
-    				 */
-    				if (isset($this->data['ACCRUALS'][$code])) {
-    				    $accrual_index = sprintf('%s-%s',$employee['RECORD']['EMP_NUM'],$this->data['ACCRUALS'][$code]);
-        				if (!empty($accrual_totals[$accrual_index])) {
-        				    $accrual_totals[$accrual_index] += (float) $hours;
-        				} else {
-        				    $accrual_totals[$accrual_index] = (float) $hours;
-        				}
-    				}
-    				?>
-            		<div class="col"><?=$day?></div>
-            		<div class="col"><?=$hours?></div>
-            		<div class="col"><?=$code?></div>
-            		<div class="w-100"></div>
-            		<?php } ?>
-        		</div>
-    		</div>
-    		<?php endif; ?>
-		<?php endforeach; ?>
-		
-		<!-- FILLER COL -->
-		<div class="col"></div>
-		
-		<!-- BEGIN TOTAL REGULAR HOURS -->
-		<div class="col-1 border">
-			<div class="row">
-				<div class="col">001</div>
-				<div class="col  d-flex justify-content-end"><?=$employee['RECORD']['HOUR']?></div>
-			</div>
-		</div>
-		<!-- END TOTAL REGULAR HOURS -->
-	</div>
+	
+	
 	<!-- END REGULAR ROW -->
 	
 	<?php if (!empty($employee['OT'])) : ?>
 	<!-- BEGIN OVERTIME ROWS -->
 	<?php foreach ($employee['OT'] as $code => $record) : ?>
+	<?php $total = 0; ?>
 	<div class="row">
-		<?php foreach ($this->data['DOW'] as $day) : ?>
+		<?php foreach ($data['DOW'] as $day) : ?>
     		<?php if (!empty($record[$day])) : ?>
-    		<?php $total += $record[$day]; ?>
+    		
+    		<?php //-- $total += $record[$day]; ?>
     		<div class="col-2 border">
     			<div class="row">
             		<div class="col"><?=$day?></div>
@@ -136,29 +89,41 @@ $work_week = $this->data['WORK_WEEK'];
             		<div class="col"><?=$code?></div>
         		</div>
     		</div>
+    		
+    		<?php 
+    		if (isset($data['ACCRUALS'][$code])) {
+    		    $accrual_index = sprintf('%s-%s',$employee['RECORD']['EMP_NUM'],$data['ACCRUALS'][$code]);
+    		    if (!empty($accrual_totals[$accrual_index])) {
+    		        $accrual_totals[$accrual_index] += (float) $record[$day];
+    		    } else {
+    		        $accrual_totals[$accrual_index] = (float) $record[$day];
+    		    }
+    		}
+    		?>
     		<?php endif; ?>
 		<?php endforeach; ?>
-		
+		<?php $total = $employee['TOTALS'][$code]; ?>
 		<!-- FILLER COL -->
 		<div class="col"></div>
 		
 		<!-- BEGIN TOTAL OVERTIME HOURS -->
+		<?php if (!isset($data['ACCRUALS'][$code])) : ?>
 		<div class="col-1">
 			<div class="row">
 				<div class="col"><?=$code?></div>
 				<div class="col d-flex justify-content-end"><?=number_format($total,2);?></div>
-				
-				
 			</div>
 		</div>
+		<?php endif; ?>
 		<!-- END TOTAL OVERTIME HOURS -->
 	</div>
-	<?php $total = 0; ?>
 	<?php endforeach; ?>
 	<!-- END OVERTIME ROWS -->
 	<?php endif; ?>
 </div>
 <?php endforeach; ?>
+
+<div class="container-fluid page-break"></div>
 
 <!-- POPULATE ACCRUAL TOTALS -->
 <script type="text/javascript">
