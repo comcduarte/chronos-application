@@ -76,11 +76,18 @@ class TelestaffImportController extends AbstractConfigController
                         /****************************************
                          * Corrections
                          ****************************************/
-                        if ($record[$CODE] == '001') { 
-                            if ($record[$HOUR] == 8.5) { $record[$HOUR] = 8; }
+                        if ($record[$CODE] == 'HOL') { $record[$CODE] = '001'; }
+                        
+                        $pc = new PaycodeModel($this->timecard_adapter);
+                        $respc = $pc->read(['CODE' => $record[$CODE]]);
+                        if (!$respc) {
+                            $this->logger->info("Paycode does not exist: " . $record[$CODE]);
+                            continue;
                         }
                         
-                        if ($record[$CODE] == 'HOL') { $record[$CODE] = '001'; }
+                        if ($pc->ACCRUAL) {
+                            if ($record[$HOUR] == 8.5) { $record[$HOUR] = 8; }
+                        }
                         
                         /****************************************
                          * Employees
@@ -122,13 +129,6 @@ class TelestaffImportController extends AbstractConfigController
                         $day = $dow[date('w', strtotime($record[$DATE]))];
                         
                         $tcl = new TimecardLineModel($this->adapter);
-                        $pc = new PaycodeModel($this->timecard_adapter);
-                        $respc = $pc->read(['CODE' => $record[$CODE]]);
-                        if (!$respc) {
-                            $this->logger->info("Paycode does not exist: " . $record[$CODE]);
-                            continue;
-                        }
-                        
                         $restcl = $tcl->read(['PAY_UUID' => $pc->UUID, 'TIMECARD_UUID' => $timecard->TIMECARD_UUID]);
                         if ($restcl) {
                             $tcl->$day += $record[$HOUR];
