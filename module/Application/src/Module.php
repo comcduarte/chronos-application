@@ -13,7 +13,7 @@ namespace Application;
 class Module
 {
     const TITLE = "Chronos - Time Entry System";
-    const VERSION = "v1.0.8";
+    const VERSION = "v1.0.9";
     
     public function getConfig() : array
     {

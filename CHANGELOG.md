@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 1.0.9
+### Fixed
+- Correction to Telestaff Import
+
 ## 1.0.8
 ### Fixed
 - Corrected Department Lookup
