@@ -44,7 +44,8 @@
 			"Timecard\\" : "module/Timecard/src",
 			"Report\\" : "module/Report/src",
 			"Annotation\\" : "module/Annotation/src",
-			"Files\\" : "module/Files/src"
+			"Files\\" : "module/Files/src",
+			"Fmla\\" : "module/Fmla/src"
 		}
 	},
 	"scripts" : {
