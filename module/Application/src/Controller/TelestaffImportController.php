@@ -85,7 +85,7 @@ class TelestaffImportController extends AbstractConfigController
                             continue;
                         }
                         
-                        if ($pc->ACCRUAL) {
+                        if ($pc->ACCRUAL || $record[$CODE] == '001') {
                             if ($record[$HOUR] == 8.5) { $record[$HOUR] = 8; }
                         }
                         
