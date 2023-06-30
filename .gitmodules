@@ -25,3 +25,6 @@
 [submodule "module/Files"]
 	path = module/Files
 	url = https://github.com/comcduarte/com-files.git
+[submodule "module\\Leave"]
+	path = module\\Leave
+	url = https://github.com/comcduarte/com-leave.git
