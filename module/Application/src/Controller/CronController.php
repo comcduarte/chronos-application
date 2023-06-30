@@ -11,6 +11,7 @@ use Laminas\Db\Sql\Where;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\Validator\Identical;
 use Laminas\View\Model\ViewModel;
+use Leave\Controller\LeaveController;
 use Exception;
 
 class CronController extends AbstractActionController
@@ -22,6 +23,8 @@ class CronController extends AbstractActionController
     
     public function cronAction()
     {
+        $this->forward()->dispatch(LeaveController::class, ['action' => 'cron']);
+        
         $view = new ViewModel();
         $this->layout('application/cron/layout');
         
