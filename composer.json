@@ -45,7 +45,8 @@
 			"Report\\" : "module/Report/src",
 			"Annotation\\" : "module/Annotation/src",
 			"Files\\" : "module/Files/src",
-			"Fmla\\" : "module/Fmla/src"
+			"Fmla\\" : "module/Fmla/src",
+			"Leave\\" : "module/Leave/src"
 		}
 	},
 	"scripts" : {
