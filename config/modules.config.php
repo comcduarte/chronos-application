@@ -40,4 +40,6 @@ return [
     'Report',
     'Annotation',
     'Files',
+    'Fmla',
+    'Leave',
 ];
