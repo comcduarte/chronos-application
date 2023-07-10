@@ -1,7 +1,7 @@
 <?php
 namespace Application\Controller\Factory;
 
-use Interop\Container\ContainerInterface;
+use Psr\Container\ContainerInterface;
 use Laminas\ServiceManager\Factory\FactoryInterface;
 use Application\Controller\UnitedWayController;
 use Application\Model\UnitedWayModel;

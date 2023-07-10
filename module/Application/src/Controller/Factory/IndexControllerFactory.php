@@ -1,9 +1,9 @@
 <?php
 namespace Application\Controller\Factory;
 
-use Interop\Container\ContainerInterface;
-use Laminas\ServiceManager\Factory\FactoryInterface;
 use Application\Controller\IndexController;
+use Laminas\ServiceManager\Factory\FactoryInterface;
+use Psr\Container\ContainerInterface;
 
 class IndexControllerFactory implements FactoryInterface
 {

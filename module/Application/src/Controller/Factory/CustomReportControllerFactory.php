@@ -2,8 +2,8 @@
 namespace Application\Controller\Factory;
 
 use Application\Controller\CustomReportController;
-use Interop\Container\ContainerInterface;
 use Laminas\ServiceManager\Factory\FactoryInterface;
+use Psr\Container\ContainerInterface;
 use Report\Form\ReportForm;
 use Report\Model\ReportModel;
 
