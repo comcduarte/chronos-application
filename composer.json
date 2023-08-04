@@ -46,7 +46,8 @@
 			"Annotation\\" : "module/Annotation/src",
 			"Files\\" : "module/Files/src",
 			"Fmla\\" : "module/Fmla/src",
-			"Leave\\" : "module/Leave/src"
+			"Leave\\" : "module/Leave/src",
+			"Help\\" : "module/Help/src"
 		}
 	},
 	"scripts" : {
