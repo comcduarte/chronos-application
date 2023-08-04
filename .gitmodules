@@ -33,4 +33,4 @@
 	url = https://github.com/comcduarte/com-leave.git
 [submodule "module/Help"]
 	path = module/Help
-	url = git@github.com:comcduarte/com-help.git
+	url = https://github.com/comcduarte/com-help.git
