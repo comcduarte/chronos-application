@@ -42,4 +42,5 @@ return [
     'Files',
     'Fmla',
     'Leave',
+    'Help',
 ];
