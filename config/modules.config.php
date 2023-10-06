@@ -29,7 +29,7 @@ return [
     'Laminas\Router',
     'Laminas\Validator',
     'Laminas\DeveloperTools',
-    'Laminas\ZendFrameworkBridge',
+//     'Laminas\ZendFrameworkBridge',
     'Application',
     'Acl',
     'Components',
