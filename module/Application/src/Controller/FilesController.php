@@ -25,7 +25,6 @@ class FilesController extends AbstractActionController
     public function cronAction()
     {
         $request = $this->getRequest();
-        $view = new ViewModel();
         
         $num_files = 999999;
         $runtime = 20; // seconds
@@ -237,7 +236,7 @@ class FilesController extends AbstractActionController
                 for ($i = 0, $sum = 0; $i < $state; $i++)
                     $sum += ($ords[$i] + ($i == $state - 1)) * pow(85, 4 - $i);
                     for ($i = 0; $i < $state - 1; $i++)
-                        $ouput .= chr($sum >> ((3 - $i) * 8));
+                        $output .= chr($sum >> ((3 - $i) * 8));
             }
             
             return $output;
@@ -277,7 +276,7 @@ class FilesController extends AbstractActionController
                 $length = !empty($options["Length"]) ? intval($options["Length"]) : strlen($stream);
                 $_stream = substr($stream, 0, $length);
                 
-                foreach ($options as $key => $value) {
+                foreach ($options as $value) {
                     switch (TRUE) {
                         case ($value == "[ASCIIHexDecode]"):
                             $_stream = $this->decodeAsciiHex($_stream);
@@ -298,6 +297,8 @@ class FilesController extends AbstractActionController
     }
     
     private function getDirtyTexts(&$texts, $textContainers) {
+        $parts = null;
+        
         for ($j = 0; $j < count($textContainers); $j++) {
             if (preg_match_all("#\[(.*)\]\s*TJ#ismU", $textContainers[$j], $parts))
                 $texts = array_merge($texts, @$parts[1]);
@@ -307,6 +308,10 @@ class FilesController extends AbstractActionController
     }
     
     private function getCharTransformations(&$transformations, $stream) {
+        $chars = null;
+        $ranges = null;
+        $map = null;
+        
         preg_match_all("#([0-9]+)\s+beginbfchar(.*)endbfchar#ismU", $stream, $chars, PREG_SET_ORDER);
         preg_match_all("#([0-9]+)\s+beginbfrange(.*)endbfrange#ismU", $stream, $ranges, PREG_SET_ORDER);
         
@@ -405,6 +410,10 @@ class FilesController extends AbstractActionController
     }
     
     private function pdf2text($filename) {
+        $objects = null;
+        $stream = null;
+        $textContainers = null;
+        
         // CDD: Deprectated $infile = @file_get_contents($filename, FILE_BINARY);
         $infile = @file_get_contents($filename);
         if (empty($infile))

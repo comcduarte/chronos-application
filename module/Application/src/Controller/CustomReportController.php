@@ -277,7 +277,7 @@ class CustomReportController extends ReportController
             }
         }
         
-        foreach ($data as $i => $paycode) {
+        foreach ($data as $paycode) {
             $emp_index = sprintf('%s-%s-%s', $paycode['TIME_GROUP'], $paycode['TIME_SUBGROUP'], $paycode['EMP_NUM']);
             $results['EMPLOYEES'][$emp_index]['RECORD'] = $paycode;
             switch (true) {

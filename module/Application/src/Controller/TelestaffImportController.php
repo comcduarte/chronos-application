@@ -40,13 +40,13 @@ class TelestaffImportController extends AbstractConfigController
         /****************************************
          * Column Descriptions
          ****************************************/
-        $NAME = 0;
-        $PYID = 1;
+        //$NAME = 0;
+        //$PYID = 1;
         $EMID = 2;
         $CODE = 3;
         $HOUR = 4;
         $DATE = 5;
-        $ACCT = 6;
+        //$ACCT = 6;
         $DETC = 7;
         $NOTE = 8;
         
