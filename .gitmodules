@@ -34,3 +34,6 @@
 [submodule "module/Help"]
 	path = module/Help
 	url = git@github.com:comcduarte/com-help.git
+[submodule "module/Html"]
+	path = module/Html
+	url = git@github.com:comcduarte/laminas-html.git

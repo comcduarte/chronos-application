@@ -47,7 +47,8 @@
 			"Files\\" : "module/Files/src",
 			"Fmla\\" : "module/Fmla/src",
 			"Leave\\" : "module/Leave/src",
-			"Help\\" : "module/Help/src"
+			"Help\\" : "module/Help/src",
+			"Laminas\\Html\\" : "module/Html/src"
 		}
 	},
 	"scripts" : {
