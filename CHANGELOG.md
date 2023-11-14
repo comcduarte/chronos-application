@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 1.0.11
+- Users have the ability to change pay code on line. 
+
 ## 1.0.10
 ### Added
 - Leave Totals available on Timecard
