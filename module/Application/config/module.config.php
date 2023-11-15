@@ -140,6 +140,7 @@ return [
             'role' => [ 'order' => 40 ],
             'report' => [ 'order' => 50 ],
             'timecard' => [ 'order' => 60 ],
+            'dashboards' => [ 'order' => 65 ],
             'unitedway' => [
                 'label' => 'United Way',
                 'route' => 'application/unitedway',
