@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace Application;
 
+use Application\ActionMenu\View\Helper\ActionMenu;
 use Application\Controller\CustomReportController;
 use Application\Controller\IndexController;
 use Application\Controller\TelestaffImportController;
@@ -20,6 +21,7 @@ use Application\Controller\Factory\TelestaffImportControllerFactory;
 use Application\Controller\Factory\UnitedWayControllerFactory;
 use Laminas\Router\Http\Literal;
 use Laminas\Router\Http\Segment;
+use Laminas\ServiceManager\Factory\InvokableFactory;
 
 return [
     'router' => [
@@ -41,6 +43,16 @@ return [
                     'defaults' => [
                         'controller' => Controller\CustomReportController::class,
                         'action'     => 'view',
+                    ],
+                ],
+            ],
+            'box' => [
+                'type' => Segment::class,
+                'options' => [
+                    'route' => '/box[/:action[/:id]]',
+                    'defaults' => [
+                        'controller' => Controller\BoxController::class,
+                        'action' => 'config',
                     ],
                 ],
             ],
@@ -105,6 +117,7 @@ return [
     ],
     'controllers' => [
         'factories' => [
+            Controller\BoxController::class => Controller\Factory\BoxControllerFactory::class,
             IndexController::class => IndexControllerFactory::class,
             Controller\CronController::class => Controller\Factory\CronControllerFactory::class,
             Controller\FilesController::class => Controller\Factory\FilesControllerFactory::class,
@@ -177,6 +190,13 @@ return [
                         'resource' => 'application/files',
                         'privilege' => 'upload',
                     ],
+                    [
+                        'label' => 'Box',
+                        'route' => 'box',
+                        'action' => 'config',
+                        'resource' => 'box',
+                        'privilege' => 'config',
+                    ],
                 ],
             ],
         ],
@@ -185,6 +205,7 @@ return [
     'service_manager' => [
         'aliases' => [
             'unitedway-model-adapter' => 'timecard-model-adapter',
+            'model-adapter' => 'timecard-model-adapter',
         ],
     ],
     'view_manager' => [
