@@ -208,6 +208,14 @@ return [
             'model-adapter' => 'timecard-model-adapter',
         ],
     ],
+    'view_helpers' => [
+        'aliases' => [
+            'actionmenu' => ActionMenu::class,
+        ],
+        'factories' => [
+            ActionMenu::class => InvokableFactory::class,
+        ],
+    ],
     'view_manager' => [
         'display_not_found_reason' => true,
         'display_exceptions'       => true,
