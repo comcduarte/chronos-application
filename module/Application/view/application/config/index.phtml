@@ -3,10 +3,10 @@
  * @var Laminas\View\Renderer\PhpRenderer $this
  */
 use Laminas\Json\Json;
+$current = 0;
 ?>
 <div class="accordion" id="accordion<?php echo $current; ?>">
 	<?php
-    $current = 0;
     foreach ($this->__vars as $name => $var) :
         $previous = $current - 1;
         $next = $current + 1;
