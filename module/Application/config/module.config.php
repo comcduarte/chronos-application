@@ -131,9 +131,15 @@ return [
             'writers' => [
                 'syslog' => [
                     'name' => \Laminas\Log\Writer\Syslog::class,
-                    'priority' => \Laminas\Log\Logger::INFO,
                     'options' => [
                         'application' => 'CHRONOS',
+                        'formatter' => [
+                            'name' => \Laminas\Log\Formatter\Simple::class,
+                            'options' => [
+                                'format' => '%priorityName%: %message% %extra%',
+                                'dateTimeFormat' => 'c',
+                            ],
+                        ],
                     ],
                 ],
             ],
