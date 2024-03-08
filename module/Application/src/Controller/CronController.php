@@ -22,6 +22,10 @@ use Laminas\Validator\Identical;
 use Laminas\View\Model\ViewModel;
 use Leave\Controller\LeaveController;
 use Settings\Model\SettingsModel;
+use Timecard\Model\TimecardLineModel;
+use Timecard\Model\TimecardModel;
+use Timecard\Model\TimecardSignatureModel;
+use Timecard\Model\TimecardStageModel;
 use Timecard\Model\Warrant;
 use Timecard\Model\Entity\TimecardEntity;
 use Exception;
@@ -79,7 +83,7 @@ class CronController extends AbstractActionController
             $resultSet->initialize($results);
         } catch (Exception $e) {
             $messages[] = $e->getMessage();
-            $this->logger->info($e->getMessage());
+            $this->logger->err($e->getMessage());
         }
         
         foreach ($resultSet as $record) {
@@ -122,7 +126,7 @@ class CronController extends AbstractActionController
                         $employee->update();
                     } catch (Exception $e) {
                         $messages[] = $e->getMessage();
-                        $this->logger->info($e->getMessage());
+                        $this->logger->err($e->getMessage());
                     }
                 }
                 
@@ -149,7 +153,7 @@ class CronController extends AbstractActionController
                     $employee->create();
                 } catch (Exception $e) {
                     $messages[] = $e->getMessage();
-                    $this->logger->info($e->getMessage());
+                    $this->logger->err($e->getMessage());
                 }
             }
             
@@ -170,7 +174,7 @@ class CronController extends AbstractActionController
                 $results = $statement->execute();
             } catch (Exception $e) {
                 $messages[] = $e->getMessage();
-                $this->logger->info($e->getMessage());
+                $this->logger->err($e->getMessage());
             }
         }
         
@@ -322,6 +326,18 @@ class CronController extends AbstractActionController
                 }
                 
                 /**
+                 * Assign Metadata Reference
+                 */
+                $warrant = new Warrant($this->timecard_adapter);
+                if (! $warrant->read(['WARRANT_NUM' => $warrant_num])) {
+                    /**
+                     * Leave item in Queue if warrant is not entered.
+                     */
+                    $this->logger->err(sprintf('Unable to retrieve warrant %s.', $warrant_num));
+                    continue;
+                }
+                
+                /**
                  * Move PDF to PAYSTUB folder
                  * @todo file turns into error, delete file if dup
                  */
@@ -335,28 +351,50 @@ class CronController extends AbstractActionController
                     continue;
                 }
                 
-                
-                
-                /**
-                 * Assign Metadata Reference
-                 */
-                $warrant = new Warrant($this->timecard_adapter);
-                if (! $warrant->read(['WARRANT_NUM' => $warrant_num])) {
-                    $this->logger->err(sprintf('Unable to retrieve warrant for week ending %s', $warrant->WORK_WEEK));
-                }
-                
                 $timecard = new TimecardEntity();
                 $timecard->setDbAdapter($this->timecard_adapter);
                 $timecard->WORK_WEEK = $warrant->WORK_WEEK;
                 $timecard->EMP_UUID = $employee->UUID;
                 if (! $timecard->getTimecard() ) {
                     /**
-                     * Cannot Retrieve Timecard.  Already moved file; should mark it for review.
+                     * Original timesheet was never created. Create blank timesheet to reference paystub.
                      */
-                    $this->logger->err(sprintf('Unable to retrieve timecard for %s for week ending %s', $employee->EMP_NUM, $warrant->WORK_WEEK));
-                    continue;
+                    $timecard->createTimecard();
+                    $timecard->getTimecard();
+                    
+                    /**
+                     * Complete Timecard
+                     */
+                    $timecard_model = new TimecardModel($this->timecard_adapter);
+                    $timecard_model->read(['UUID' => $timecard->TIMECARD_UUID]);
+                    $timecard_model->STATUS = $timecard_model::COMPLETED_STATUS;
+                    $timecard_model->update();
+                    unset ($timecard_model);
+                    
+                    $line = new TimecardLineModel($this->timecard_adapter);
+                    $line->read(['TIMECARD_UUID' => $timecard->TIMECARD_UUID]);
+                    $line->STATUS = $line::COMPLETED_STATUS;
+                    $line->update();
+                    unset($line);
+                    
+                    
+                    /****************************************
+                     * GET TIMECARD STAGE
+                     ****************************************/
+                    $stage = new TimecardStageModel($this->timecard_adapter);
+                    $stage->read(['SEQUENCE' => TimecardModel::COMPLETED_STATUS]);
+                    
+                    /****************************************
+                     * SET TIMECARD SIGNATURE
+                     ****************************************/
+                    $signature = new TimecardSignatureModel($this->timecard_adapter);
+                    $signature->TIMECARD_UUID = $timecard->TIMECARD_UUID;
+                    $signature->USER_UUID = 'SYSTEM';
+                    $signature->STAGE_UUID = $stage->UUID;
+                    $signature->create();
+                    
+                    $this->logger->info(sprintf('Completed timecard for %s for week ending %s', $emp_num, $warrant->WORK_WEEK));
                 }
-                
                 
                 $data = [
                     'referenceUuid' => $timecard->TIMECARD_UUID,
