@@ -25,6 +25,7 @@ use Timecard\Model\TimecardSignatureModel;
 use Timecard\Model\TimecardStageModel;
 use Timecard\Model\Warrant;
 use Timecard\Model\Entity\TimecardEntity;
+use Laminas\Box\API\Exception\ClientErrorException;
 
 class BoxController extends AbstractActionController
 {
@@ -211,7 +212,9 @@ class BoxController extends AbstractActionController
             $form->setData($data);
             
             if ($form->isValid()) {
-                $employee->read(['EMP_NUM' => $data['EMP_NUM']]);
+                if (!$employee->read(['EMP_NUM' => $data['EMP_NUM']])) {
+                   throw new ClientErrorException('Unable to retrieve employee record.');
+                }
                 
                 switch (true) {
                     case isset($data['ASSOCIATE']):
@@ -250,6 +253,11 @@ class BoxController extends AbstractActionController
             $emp_folder_id = $entry['id'];
             break;
         }
+        
+        if (!$emp_folder_id) {
+            throw new ClientErrorException('Unable to find Employee Folder.');
+        }
+        
         $view->setVariable('emp_folder_id', $emp_folder_id);
         
         /****************************************
