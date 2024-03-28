@@ -10,3 +10,4 @@ composer.lock
 .buildpath
 .project
 config/autoload/local.php*
+public/img/Thumbs.db
