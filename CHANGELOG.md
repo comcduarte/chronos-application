@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 1.1.0
+- Added support for Box File storage.
+- Increased Logging.
+- Paperless Paystubs and other related files.
+
+
 ## 1.0.11
 - Users have the ability to change pay code on line. 
 

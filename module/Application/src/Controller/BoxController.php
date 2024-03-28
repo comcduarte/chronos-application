@@ -4,11 +4,13 @@ namespace Application\Controller;
 use Employee\Model\EmployeeModel;
 use Laminas\Box\API\AccessTokenAwareTrait;
 use Laminas\Box\API\Role;
+use Laminas\Box\API\Exception\ClientErrorException;
 use Laminas\Box\API\Resource\ClientError;
 use Laminas\Box\API\Resource\Collaboration;
 use Laminas\Box\API\Resource\File;
 use Laminas\Box\API\Resource\Folder;
 use Laminas\Box\API\Resource\MetadataInstance;
+use Laminas\Box\API\Resource\MetadataInstances;
 use Laminas\Box\API\Resource\Query;
 use Laminas\Box\API\Resource\User;
 use Laminas\Db\Adapter\AdapterAwareTrait;
@@ -17,6 +19,7 @@ use Laminas\Form\Element\Csrf;
 use Laminas\Form\Element\Submit;
 use Laminas\Form\Element\Text;
 use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\Validator\Identical;
 use Laminas\View\Model\ViewModel;
 use Settings\Model\SettingsModel;
 use Timecard\Model\TimecardLineModel;
@@ -25,7 +28,6 @@ use Timecard\Model\TimecardSignatureModel;
 use Timecard\Model\TimecardStageModel;
 use Timecard\Model\Warrant;
 use Timecard\Model\Entity\TimecardEntity;
-use Laminas\Box\API\Exception\ClientErrorException;
 
 class BoxController extends AbstractActionController
 {
@@ -159,6 +161,8 @@ class BoxController extends AbstractActionController
         /****************************************
          * Generate Form
          ****************************************/
+        $class = 'btn btn-primary mt-2 me-2 btn-sm';
+        
         $form = new Form();
         $form->add([
             'name' => 'EMP_NUM',
@@ -178,7 +182,7 @@ class BoxController extends AbstractActionController
             'type' => Submit::class,
             'attributes' => [
                 'value' => 'Search',
-                'class' => 'btn btn-primary mt-2 me-2',
+                'class' => $class,
                 'id' => 'SUBMIT',
             ],
         ],['priority' => 0]);
@@ -188,8 +192,18 @@ class BoxController extends AbstractActionController
             'type' => Submit::class,
             'attributes' => [
                 'value' => 'Associate',
-                'class' => 'btn btn-primary mt-2 me-2',
+                'class' => $class,
                 'id' => 'ASSOCIATE',
+            ],
+        ],['priority' => 0]);
+        
+        $form->add([
+            'name' => 'REASSOCIATE',
+            'type' => Submit::class,
+            'attributes' => [
+                'value' => 'Reassociate Folder',
+                'class' => $class,
+                'id' => 'REASSOCIATE',
             ],
         ],['priority' => 0]);
         
@@ -199,6 +213,12 @@ class BoxController extends AbstractActionController
          * Employee Model
          ****************************************/
         $view->setVariable('employee', $employee);
+        
+        /****************************************
+         * Global Variables
+         ****************************************/
+        $template_key = 'webappReference';
+        $scope = 'enterprise_563960266';
         
         /****************************************
          * Process Submission
@@ -220,6 +240,9 @@ class BoxController extends AbstractActionController
                     case isset($data['ASSOCIATE']):
                         $this->flashmessenger()->addInfoMessage('Associated');
                         break;
+                    case isset($data['REASSOCIATE']):
+                        
+                        break;
                 }
             } else {
                 $this->flashmessenger()->addErrorMessage("Form is Invalid.");
@@ -231,9 +254,6 @@ class BoxController extends AbstractActionController
         /****************************************
          * Find Employee Box Folder
          ****************************************/
-//         $scope = 'enterprise_563960266';
-//         $template_key = 'webappReference';
-        
         $settings = new SettingsModel($this->adapter);
         $settings->read(['MODULE' => 'BOX','SETTING' => 'APP_FOLDER_ID']);
         $app_folder_id = $settings->VALUE;
@@ -259,6 +279,49 @@ class BoxController extends AbstractActionController
         }
         
         $view->setVariable('emp_folder_id', $emp_folder_id);
+        
+        /****************************************
+         * Find Metadata Associated With Folder
+         ****************************************/
+        $metadata_instance = new MetadataInstance($this->access_token);
+        $instances = [];
+        $identical = new Identical($employee->UUID);
+        /**
+         * 
+         * @var MetadataInstances $metadata_instances
+         * @var MetadataInstance $instance
+         */
+        $metadata_instances = $metadata_instance->list_metadata_instances_on_folder($emp_folder_id);
+        foreach ($metadata_instances->entries as $instance) {
+            /****************************************
+             * Employee UUID should be associated with Folder
+             ****************************************/
+            if (!$identical->isValid($instance['referenceUuid'])) {
+                if (isset($data['REASSOCIATE'])) {
+                    $update = [
+                        [
+                            'op' => 'replace',
+                            'path' => '/referenceUuid',
+                            'value' => $employee->UUID,
+                        ]
+                    ];
+                    
+                    $metadata_instance = new MetadataInstance($this->access_token);
+                    $result = $metadata_instance->update_metadata_instance_on_folder($emp_folder_id, $scope, $template_key, $update);
+                    if ($result instanceof ClientError) {
+                        throw new ClientErrorException($result->message);
+                    } else {
+                        $instance['referenceUuid'] = $employee->UUID;
+                    }
+                } else {
+                    $instance['referenceUuid'] = sprintf('<span class="badge text-bg-danger">%s</span>', $instance['referenceUuid']);
+                }
+                
+            }
+            $instances[] = $instance;
+        }
+        $view->setVariable('emp_folder_mdis', $instances);
+        unset($instances, $metadata_instance, $metadata_instances);
         
         /****************************************
          * List Files in PAYSTUBS
@@ -301,6 +364,10 @@ class BoxController extends AbstractActionController
                     $this->associate($file_id);
                 }
             }
+        }
+        
+        if ($without > 0) {
+            $without = sprintf('<span class="badge text-bg-danger">%s</span>', $without);
         }
         
         $view->setVariables([
@@ -394,5 +461,4 @@ class BoxController extends AbstractActionController
             }
         }
     }
-    
 }

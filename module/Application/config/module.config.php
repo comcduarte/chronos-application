@@ -184,6 +184,23 @@ return [
                         'resource' => 'application/telestaff-import',
                         'privilege' => 'index',
                     ],
+                    [
+                        'label' => 'Box',
+                        'class' => 'dropdown-submenu',
+                        'route' => 'box',
+                        'action' => 'menu',
+                        'resource' => 'box',
+                        'privilege' => 'menu',
+                        'pages' => [
+                            [
+                                'label' => 'Associate Files',
+                                'route' => 'box',
+                                'action' => 'associate',
+                                'resource' => 'box',
+                                'privilege' => 'associate',
+                            ],
+                        ],
+                    ],
                 ],
             ],
             'settings' => [
