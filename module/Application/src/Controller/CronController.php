@@ -225,106 +225,114 @@ class CronController extends AbstractActionController
             $file->get_file_information($item['id']);
             
             $matches = [];
-            if (preg_match('/^CITZ(\d{6})(\d{7})(\d{6})/', $file->name, $matches)) {
-                $warrant_num = $matches[1];
-                $emp_num = $matches[3];
-                
-                
-                
+                        
+            switch(true) {
+                case preg_match('/^CITZ(\d{6})(\d{7})(\d{6})/', $file->name, $matches):
+                    $warrant_num = $matches[1];
+                    $emp_num = $matches[3];
+                    $folder_name = 'PAYSTUBS';
+                    break;
+                case preg_match('/^(W2|1095C)_\d{4}_\d_(\d{6})_\d{9}/', $file->name, $matches):
+                    $folder_name = $matches[1];
+                    $emp_num = $matches[2];
+                    break;
+                default:
+                    continue 2;
+            }
+            
+            /**
+             * Metadata Search
+             * Find employee folder based on employee uuid.
+             */
+            $emp_folder_id = null;
+            
+            $employee = new EmployeeModel($this->employee_adapter);
+            $employee->read(['EMP_NUM' => $emp_num]);
+            
+            $metadata_query = new MetadataQuery($this->access_token);
+            $metadata_query_search_results = $metadata_query->metadata_query(
+                (string) $app_folder_id,
+                'enterprise_563960266.webappReference',
+                "referenceUuid = :uuid",
+                ['uuid' => $employee->UUID],
+                );
+            if ($metadata_query_search_results instanceof ClientError) {
                 /**
-                 * Search
-                 * Iteration only goes through 100 entries max.
-                 *
-                $search = new Search($this->access_token);
-                $search->query("$emp_num&type=folder");
-                $search_results = $search->search_for_content();
-                
-                foreach ($search_results->entries as $emp_folder) {
-                    if ($emp_folder['name'] == $emp_num) {
-                        /**
-                         * Found Employee Folder ID
-                         *
-                         $emp_folder_id = $emp_folder['id'];
-                         $this->logger->info(sprintf('Found folder for %s [%s]', $emp_num, $emp_folder_id));
-                         break;
-                     } 
-                }*/       
-                
-                /**
-                 * Metadata Search
-                 * Find employee folder based on employee uuid.
+                 * @var ClientError $metadata_query_search_results
                  */
-                $emp_folder_id = null;
+                $this->logger->err(sprintf('[%s] %s (%s)', $metadata_query_search_results->status, $metadata_query_search_results->message, $emp_num));
+            } 
+            
+            /**
+             * @var MetadataQuerySearchResults $metadata_query_search_results
+             * @var File|Folder $item
+             */
+            foreach ($metadata_query_search_results->entries as $item) {
+                if ($item['type'] == 'folder' && $item['name'] == $emp_num) {
+                    $emp_folder_id = $item['id'];
+                }
+            }
+            
+            
+            $dest_folder_id = null;
+            if (is_null($emp_folder_id)) {
+                /**
+                 * Create new Employee Folder
+                 */
+                $folder = $folder->create_folder($app_folder_id,$emp_num);
+                $emp_folder_id = $folder->id;
                 
-                $employee = new EmployeeModel($this->employee_adapter);
-                $employee->read(['EMP_NUM' => $emp_num]);
+                $metadata = new MetadataInstance($this->access_token);
+                $data = [
+                    'referenceUuid' => $employee->UUID,
+                ];
+                $result = $metadata->create_metadata_instance_on_folder($emp_folder_id, $scope, $template_key, $data);
                 
-                $metadata_query = new MetadataQuery($this->access_token);
-                $metadata_query_search_results = $metadata_query->metadata_query(
-                    (string) $app_folder_id,
-                    'enterprise_563960266.webappReference',
-                    "referenceUuid = :uuid",
-                    ['uuid' => $employee->UUID],
-                    );
-                if ($metadata_query_search_results instanceof ClientError) {
-                    /**
-                     * @var ClientError $metadata_query_search_results
-                     */
-                    $this->logger->err(sprintf('[%s] %s (%s)', $metadata_query_search_results->status, $metadata_query_search_results->message, $emp_num));
-                } 
+                if ($result instanceof ClientError) {
+                    $this->logger->err(sprintf('[%s] %s (%s)', $result->status, $result->message, $emp_num));
+                }
                 
                 /**
-                 * @var MetadataQuerySearchResults $metadata_query_search_results
-                 * @var File|Folder $item
+                 * Create Destination Folder
                  */
-                foreach ($metadata_query_search_results->entries as $item) {
-                    if ($item['type'] == 'folder' && $item['name'] == $emp_num) {
-                        $emp_folder_id = $item['id'];
+                $folder = $folder->create_folder($emp_folder_id, $folder_name);
+                $dest_folder_id = $folder->id;
+                
+                $this->logger->info(sprintf('Created folder structure for %s [%s]', $emp_num, $emp_folder_id));
+            } else {
+                $folder = $folder->get_folder_information($emp_folder_id);
+                foreach ($folder->item_collection['entries'] as $x) {
+                    if ($x['name'] == $folder_name) {
+                        $dest_folder_id = $x['id'];
+                        break;
                     }
                 }
                 
-                
-                $paystub_folder_id = null;
-                if (is_null($emp_folder_id)) {
-                    /**
-                     * Create new Employee Folder
-                     */
-                    $folder = $folder->create_folder($app_folder_id,$emp_num);
-                    $emp_folder_id = $folder->id;
-                    
-                    $metadata = new MetadataInstance($this->access_token);
-                    $data = [
-                        'referenceUuid' => $employee->UUID,
-                    ];
-                    $result = $metadata->create_metadata_instance_on_folder($emp_folder_id, $scope, $template_key, $data);
-                    
-                    if ($result instanceof ClientError) {
-                        $this->logger->err(sprintf('[%s] %s (%s)', $result->status, $result->message, $emp_num));
-                    }
-                    
-                    /**
-                     * Create PAYSTUB Folder
-                     */
-                    $folder = $folder->create_folder($emp_folder_id, 'PAYSTUBS');
-                    $paystub_folder_id = $folder->id;
-                    
-                    $this->logger->info(sprintf('Created folder structure for %s [%s]', $emp_num, $emp_folder_id));
-                } else {
-                    $folder = $folder->get_folder_information($emp_folder_id);
-                    foreach ($folder->item_collection['entries'] as $x) {
-                        if ($x['name'] == 'PAYSTUBS') {
-                            $paystub_folder_id = $x['id'];
-                            break;
-                        }
-                    }
-                    
-                    if (is_null($paystub_folder_id)) {
-                        $folder = $folder->create_folder($emp_folder_id, 'PAYSTUBS');
-                        $paystub_folder_id = $folder->id;
-                        $this->logger->info(sprintf('Created Paystub folder for %s [%s]', $emp_num, $paystub_folder_id));
-                    }
+                if (is_null($dest_folder_id)) {
+                    $folder = $folder->create_folder($emp_folder_id, $folder_name);
+                    $dest_folder_id = $folder->id;
+                    $this->logger->info(sprintf('Created %s folder for %s [%s]', $folder_name, $emp_num, $dest_folder_id));
                 }
+            }
+            
+            /**
+             * Move PDF to Destination folder
+             * @todo file turns into error, delete file if dup
+             */
+            $retval = $file->move_file($file->id, $dest_folder_id);
+            if ($retval instanceof ClientError) {
+                $this->logger->err(sprintf($retval->message . ' [%s]', $emp_num));
+                if ($retval->item_status = '409') {
+                    $file->delete_file($file->id);
+                    $this->logger->info(sprintf('Deleted duplicate file id [%s', $file->id));
+                }
+                continue;
+            }
                 
+            /**
+             * If a Paystub, find/create Timecard
+             */
+            if ($folder_name == 'PAYSTUBS') {
                 /**
                  * Assign Metadata Reference
                  */
@@ -334,20 +342,6 @@ class CronController extends AbstractActionController
                      * Leave item in Queue if warrant is not entered.
                      */
                     $this->logger->err(sprintf('Unable to retrieve warrant %s.', $warrant_num));
-                    continue;
-                }
-                
-                /**
-                 * Move PDF to PAYSTUB folder
-                 * @todo file turns into error, delete file if dup
-                 */
-                $retval = $file->move_file($file->id, $paystub_folder_id);
-                if ($retval instanceof ClientError) {
-                    $this->logger->err(sprintf($retval->message . ' [%s]', $emp_num));
-                    if ($retval->item_status = '409') {
-                        $file->delete_file($file->id);
-                        $this->logger->info(sprintf('Deleted duplicate file id [%s', $file->id));
-                    }
                     continue;
                 }
                 
@@ -399,16 +393,26 @@ class CronController extends AbstractActionController
                 $data = [
                     'referenceUuid' => $timecard->TIMECARD_UUID,
                 ];
-                
-                $template_key = 'webappReference';
-                
-                $metadata_instance = new MetadataInstance($this->getAccessToken());
-                $retval = $metadata_instance->create_metadata_instance_on_file($file->id, $this->getAccessToken()->box_subject_type . '_' . $this->getAccessToken()->box_subject_id, $template_key, $data);
-                
-                if ($retval instanceof ClientError) {
-                    $this->logger->err(sprintf($retval->message . ' [%s] [%s] context-info: %s', $file->name, $emp_num, $retval->context_info));
-                }
+            } else {
+                $data = [
+                    'referenceUuid' => $employee->UUID,
+                ];
             }
+            
+            /**
+             * Create Metadata Instance
+             */
+            $template_key = 'webappReference';
+            
+            $metadata_instance = new MetadataInstance($this->getAccessToken());
+            $retval = $metadata_instance->create_metadata_instance_on_file($file->id, $this->getAccessToken()->box_subject_type . '_' . $this->getAccessToken()->box_subject_id, $template_key, $data);
+            
+            if ($retval instanceof ClientError) {
+                $this->logger->err(sprintf($retval->message . ' [%s] [%s] context-info: %s', $file->name, $emp_num, $retval->context_info));
+            }
+            
+            unset($folder_name);
+            unset($emp_num);
         }
     }
 }
