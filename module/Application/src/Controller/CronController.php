@@ -324,7 +324,7 @@ class CronController extends AbstractActionController
                 $this->logger->err(sprintf($retval->message . ' [%s]', $emp_num));
                 if ($retval->item_status = '409') {
                     $file->delete_file($file->id);
-                    $this->logger->info(sprintf('Deleted duplicate file id [%s', $file->id));
+                    $this->logger->info(sprintf('Deleted duplicate file id [%s]', $file->id));
                 }
                 continue;
             }
