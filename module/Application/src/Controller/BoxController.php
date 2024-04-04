@@ -28,11 +28,13 @@ use Timecard\Model\TimecardSignatureModel;
 use Timecard\Model\TimecardStageModel;
 use Timecard\Model\Warrant;
 use Timecard\Model\Entity\TimecardEntity;
+use Laminas\Log\LoggerAwareTrait;
 
 class BoxController extends AbstractActionController
 {
     use AdapterAwareTrait;
     use AccessTokenAwareTrait;
+    use LoggerAwareTrait;
     
     public function configAction()
     {

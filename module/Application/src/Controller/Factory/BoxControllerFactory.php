@@ -18,6 +18,8 @@ class BoxControllerFactory implements FactoryInterface
         $access_token = new AccessToken($container->get('access-token-config'));
         $controller->setAccessToken($access_token);
         
+        $controller->setLogger($container->get('syslogger'));
+        
         return $controller;
     }
 }
