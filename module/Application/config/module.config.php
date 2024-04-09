@@ -199,6 +199,13 @@ return [
                                 'resource' => 'box',
                                 'privilege' => 'associate',
                             ],
+                            [
+                                'label' => 'Reassociate Warrant',
+                                'route' => 'box',
+                                'action' => 'update_warrant',
+                                'resource' => 'box',
+                                'privilege' => 'update_warrant',
+                            ],
                         ],
                     ],
                 ],

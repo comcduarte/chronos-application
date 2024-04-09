@@ -1,13 +1,13 @@
-<?php 
+<?php
 $form->prepare();
-$form->setAttribute('action', $this->url('box', ['action' => 'associate']));
+$form->setAttribute('action', $this->url('box', ['action' => 'update_warrant']));
 ?>
 <div class="row">
 	<div class="col">
 		<div class="card mb-4">
 			<div class="card-header d-flex justify-content-between">
         		<div>
-        			<b>Enter Employee Number</b>
+        			<b>Enter Warrant Number</b>
         		</div>
         	</div>
         	<div class="card-body">
@@ -23,13 +23,13 @@ $form->setAttribute('action', $this->url('box', ['action' => 'associate']));
 		<div class="card mb-4">
 			<div class="card-header d-flex justify-content-between">
         		<div>
-        			<b>Employee Information</b>
+        			<b>Warrant Information</b>
         		</div>
         	</div>
         	<div class="card-body">
         		<pre>
         		<?php 
-        		print_r($employee->getArrayCopy());
+        		print_r($warrant->getArrayCopy());
         		?>
         		</pre>
         	</div>
@@ -48,7 +48,6 @@ $form->setAttribute('action', $this->url('box', ['action' => 'associate']));
         	<div class="card-body">
         		<pre>
         		<?php 
-        		print_r($emp_folder_mdis);
         		?>
         		</pre>
         	</div>
@@ -64,10 +63,11 @@ $form->setAttribute('action', $this->url('box', ['action' => 'associate']));
         	<div class="card-body">
         		<pre>
 Folders Found: <?php echo $folders->total_count . "\n"; ?>
-Employee Folder Found: <?php echo $emp_folder_id . "\n"; ?>
-Number of Files in Folder: <?php echo $num_files . "\n"; ?>
-Files with Metadata: <?php echo $with . "\n"; ?>
-Files without Metadata: <?php echo $without . "\n"; ?>
+Search Results:
+	Files: <?php echo $search_results->total_count . "\n"; ?>
+	Limit: <?php echo $search_results->limit . "\n"; ?>
+	Files with Metadata: <?php echo $with . "\n"; ?>
+	Files without Metadata: <?php echo $without . "\n"; ?>
         		</pre>
         	</div>
 		</div>

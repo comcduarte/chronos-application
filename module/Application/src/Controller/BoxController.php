@@ -29,6 +29,8 @@ use Timecard\Model\TimecardStageModel;
 use Timecard\Model\Warrant;
 use Timecard\Model\Entity\TimecardEntity;
 use Laminas\Log\LoggerAwareTrait;
+use Application\Form\UpdateWarrantForm;
+use Laminas\Box\API\Search;
 
 class BoxController extends AbstractActionController
 {
@@ -240,10 +242,8 @@ class BoxController extends AbstractActionController
                 
                 switch (true) {
                     case isset($data['ASSOCIATE']):
-                        $this->flashmessenger()->addInfoMessage('Associated');
                         break;
                     case isset($data['REASSOCIATE']):
-                        
                         break;
                 }
             } else {
@@ -364,6 +364,8 @@ class BoxController extends AbstractActionController
                 
                 if (isset($data['ASSOCIATE'])) {
                     $this->associate($file_id);
+                    $without--;
+                    $with++;
                 }
             }
         }
@@ -376,6 +378,120 @@ class BoxController extends AbstractActionController
             'with' => $with,
             'without' => $without,
         ]);
+        
+        return $view;
+    }
+    
+    public function updateWarrantAction()
+    {
+        $view = new ViewModel();
+        $associate = false;
+        
+        $form = new UpdateWarrantForm();
+        $form->init();
+        $view->setVariable('form', $form);
+        
+        $warrant = new Warrant($this->adapter);
+        $view->setVariable('warrant', $warrant);
+        
+        /****************************************
+         * Process Submission
+         ****************************************/
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            $data = array_merge_recursive(
+                $request->getPost()->toArray(),
+                );
+            
+            $form->setData($data);
+            
+            if ($form->isValid()) {
+                if (!$warrant->read(['WARRANT_NUM' => $data['WARRANT_NUM']])) {
+                    throw new ClientErrorException('Unable to retrieve warrant record.');
+                }
+                
+                switch (true) {
+                    case isset($data['ASSOCIATE']):
+                        $associate = true;
+                        break;
+                    default:
+                        break;
+                }
+            } else {
+                $this->flashmessenger()->addErrorMessage("Form is Invalid.");
+            }
+        } else {
+            return $view;
+        }
+        
+        /****************************************
+         * Find Employee Folders
+         ****************************************/
+        $settings = new SettingsModel($this->adapter);
+        $settings->read(['MODULE' => 'BOX','SETTING' => 'APP_FOLDER_ID']);
+        $app_folder_id = $settings->VALUE;
+        
+        $query = new Query();
+        $query->limit = 1000;
+        
+        $folder = new Folder($this->access_token);
+        $items = $folder->list_items_in_folder($app_folder_id, $query);
+        $view->setVariable('folders', $items);
+        
+        /****************************************
+         * Search for paystubs for particular warrant
+         ****************************************/
+        $search = new Search($this->access_token);
+        $search->query = $warrant->WARRANT_NUM;
+        $search->type = Search::TYPE_FILE;
+        $search->file_extensions = 'pdf';
+        $search->offset = 0;
+        $search->limit = 200;
+        
+        $metadata_instance = new MetadataInstance($this->access_token);
+        $search_results = $search->search_for_content();
+        $view->setVariable('search_results', $search_results);
+        
+        $with = 0;
+        $without = 0;
+        
+        while (true) {
+            /**
+             * @var MetadataInstances $instances
+             */
+            foreach ($search_results->entries as $file) {
+                $instances = $metadata_instance->list_metadata_instances_on_file($file['id']);
+                foreach ($instances->entries as $instance) {
+                    /****************************************
+                     * Skip if already referencing time card.
+                     ****************************************/
+                    if ($instance['$template'] == 'webappReference') {
+                        $with++;
+                        continue 2;
+                    }
+                }
+                $without++;
+                if ($associate) {
+                    $this->associate($file['id']);
+                    $without--;
+                    $with++;
+                }
+            }
+            
+            if ($search_results->total_count <= ( $search->offset + $search->limit )) {
+                break;
+            }
+            $search->offset += $search->limit;
+            $search->query = $warrant->WARRANT_NUM;
+            $search_results = $search->search_for_content();
+        }
+        
+        if ($without > 0) {
+            $without = sprintf('<span class="badge text-bg-danger">%s</span>', $without);
+        }
+        
+        $view->setVariable('with', $with);
+        $view->setVariable('without', $without);
         
         return $view;
     }
