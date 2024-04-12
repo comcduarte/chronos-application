@@ -450,6 +450,9 @@ class BoxController extends AbstractActionController
         
         $metadata_instance = new MetadataInstance($this->access_token);
         $search_results = $search->search_for_content();
+        if ($search_results instanceof ClientError) {
+            $this->logger->err(sprintf('[%s] [%s] %s', $search_results->status, $search_results->code, $search_results->message));
+        }
         $view->setVariable('search_results', $search_results);
         
         $with = 0;
@@ -484,6 +487,9 @@ class BoxController extends AbstractActionController
             $search->offset += $search->limit;
             $search->query = $warrant->WARRANT_NUM;
             $search_results = $search->search_for_content();
+            if ($search_results instanceof ClientError) {
+                $this->logger->err(sprintf('[%s] [%s] %s', $search_results->status, $search_results->code, $search_results->message));
+            }
         }
         
         if ($without > 0) {
