@@ -139,7 +139,7 @@ class BoxController extends AbstractActionController
         
         $file = new File($this->getAccessToken());
         $content = $file->download_file($file_id);
-        $view->setVariable('data', $content->getContent());
+        $view->setVariable('data', $content->getBody());
         
         /**
          *
