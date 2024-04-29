@@ -1,0 +1,76 @@
+<?php 
+$form->prepare();
+$form->setAttribute('action', $this->url('box', ['action' => 'associate']));
+?>
+<div class="row">
+	<div class="col">
+		<div class="card mb-4">
+			<div class="card-header d-flex justify-content-between">
+        		<div>
+        			<b>Enter Employee Number</b>
+        		</div>
+        	</div>
+        	<div class="card-body">
+        		<?php 
+        		echo $this->form()->openTag($form);
+        		echo $this->formCollection($form);
+        		echo $this->form()->closeTag($form);
+        		?>
+        	</div>
+		</div>
+	</div>
+	<div class="col">
+		<div class="card mb-4">
+			<div class="card-header d-flex justify-content-between">
+        		<div>
+        			<b>Employee Information</b>
+        		</div>
+        	</div>
+        	<div class="card-body">
+        		<pre>
+        		<?php 
+        		print_r($employee->getArrayCopy());
+        		?>
+        		</pre>
+        	</div>
+		</div>
+	</div>
+</div>
+<?php if (isset($folders)) : ?>
+<div class="row">
+<div class="col">
+		<div class="card mb-4">
+			<div class="card-header d-flex justify-content-between">
+        		<div>
+        			<b>Folder Information</b>
+        		</div>
+        	</div>
+        	<div class="card-body">
+        		<pre>
+        		<?php 
+        		print_r($emp_folder_mdis);
+        		?>
+        		</pre>
+        	</div>
+		</div>
+	</div>
+	<div class="col">
+		<div class="card mb-4">
+			<div class="card-header d-flex justify-content-between">
+        		<div>
+        			<b>Box Information</b>
+        		</div>
+        	</div>
+        	<div class="card-body">
+        		<pre>
+Folders Found: <?php echo $folders->total_count . "\n"; ?>
+Employee Folder Found: <?php echo $emp_folder_id . "\n"; ?>
+Number of Files in Folder: <?php echo $num_files . "\n"; ?>
+Files with Metadata: <?php echo $with . "\n"; ?>
+Files without Metadata: <?php echo $without . "\n"; ?>
+        		</pre>
+        	</div>
+		</div>
+	</div>
+</div>
+<?php endif; ?>

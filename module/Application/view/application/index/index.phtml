@@ -8,7 +8,8 @@
         <h1 class="display-5 fw-bold">What's New</h1>
     
         <ul>
-        	<li>Users have the ability to change pay code on line.
+        	<li>Paperless Paystubs.  Employees are now able to view paystubs electronically.
+        	<li>Registration.  Employees without MIDNET accounts can request access to Chronos.
         </ul>
     
         <hr class="my-4">
@@ -16,8 +17,8 @@
     </div>
 </div>
 
-<div class="row row-cols-3">
-	<div class="col">
+<div class="row">
+	<div class="col-lg mb-3">
         <div class="card">
             <h2 class="card-header">Step 1: Login</h2>
             <div class="card-body">
@@ -27,11 +28,12 @@
             </div>
             <div class="card-footer">
             	<a class="btn btn-primary" href="<?php echo $this->url('user/login'); ?>">Login &raquo;</a>
+            	<a class="btn btn-primary" href="<?php echo $this->url('user/default', ['action' => 'register']); ?>">Register &raquo;</a>
             </div>
         </div>
     </div>
 
-	<div class="col">
+	<div class="col-lg mb-3">
         <div class="card">
             <h2 class="card-header">Step 2: Enter Time</h2>
             <div class="card-body">
@@ -45,7 +47,7 @@
         </div>
     </div>
 
-	<div class="col">
+	<div class="col-lg mb-3">
         <div class="card">
             <h2 class="card-header">Help &amp; Support</h2>
             <div class="card-body">
@@ -55,6 +57,7 @@
             </div>
             <div class="card-footer">
             	<a class="btn btn-primary" href="https://kbox.middletownct.gov/" target="_blank">Submit Ticket &raquo;</a>
+            	<a class="btn btn-primary" href="https://connect.middletownct.gov/" target="_blank">Remote Support &raquo;</a>
             </div>
         </div>
     </div>

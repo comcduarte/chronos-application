@@ -29,8 +29,6 @@ return [
     'Laminas\Router',
     'Laminas\Validator',
     'Laminas\DeveloperTools',
-//     'Laminas\ZendFrameworkBridge',
-    'Application',
     'Acl',
     'Components',
     'Settings',
@@ -43,4 +41,5 @@ return [
     'Fmla',
     'Leave',
     'Help',
+    'Application',
 ];

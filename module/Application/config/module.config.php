@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace Application;
 
+use Application\ActionMenu\View\Helper\ActionMenu;
 use Application\Controller\CustomReportController;
 use Application\Controller\IndexController;
 use Application\Controller\TelestaffImportController;
@@ -20,6 +21,7 @@ use Application\Controller\Factory\TelestaffImportControllerFactory;
 use Application\Controller\Factory\UnitedWayControllerFactory;
 use Laminas\Router\Http\Literal;
 use Laminas\Router\Http\Segment;
+use Laminas\ServiceManager\Factory\InvokableFactory;
 
 return [
     'router' => [
@@ -41,6 +43,16 @@ return [
                     'defaults' => [
                         'controller' => Controller\CustomReportController::class,
                         'action'     => 'view',
+                    ],
+                ],
+            ],
+            'box' => [
+                'type' => Segment::class,
+                'options' => [
+                    'route' => '/box[/:action[/:id]]',
+                    'defaults' => [
+                        'controller' => Controller\BoxController::class,
+                        'action' => 'config',
                     ],
                 ],
             ],
@@ -105,6 +117,7 @@ return [
     ],
     'controllers' => [
         'factories' => [
+            Controller\BoxController::class => Controller\Factory\BoxControllerFactory::class,
             IndexController::class => IndexControllerFactory::class,
             Controller\CronController::class => Controller\Factory\CronControllerFactory::class,
             Controller\FilesController::class => Controller\Factory\FilesControllerFactory::class,
@@ -118,9 +131,15 @@ return [
             'writers' => [
                 'syslog' => [
                     'name' => \Laminas\Log\Writer\Syslog::class,
-                    'priority' => \Laminas\Log\Logger::INFO,
                     'options' => [
                         'application' => 'CHRONOS',
+                        'formatter' => [
+                            'name' => \Laminas\Log\Formatter\Simple::class,
+                            'options' => [
+                                'format' => '%priorityName%: %message% %extra%',
+                                'dateTimeFormat' => 'c',
+                            ],
+                        ],
                     ],
                 ],
             ],
@@ -133,12 +152,21 @@ return [
                 'route' => 'home',
                 'order' => 0,
             ],
+            'acl' => [ 'order' => 10 ],
+            'employee' => [ 'order' => 20 ],
+            'help' => [ 'order' => 999 ],
+            'user' => [ 'order' => 30 ],
+            'role' => [ 'order' => 40 ],
+            'report' => [ 'order' => 50 ],
+            'timecard' => [ 'order' => 60 ],
+            'dashboards' => [ 'order' => 65 ],
             'unitedway' => [
                 'label' => 'United Way',
                 'route' => 'application/unitedway',
                 'action' => 'index',
                 'resource' => 'application/unitedway',
                 'privilege' => 'index',
+                'order' => -10,
             ],
             'utilities' => [
                 'label' => 'Utilities',
@@ -156,6 +184,30 @@ return [
                         'resource' => 'application/telestaff-import',
                         'privilege' => 'index',
                     ],
+                    [
+                        'label' => 'Box',
+                        'class' => 'dropdown-submenu',
+                        'route' => 'box',
+                        'action' => 'menu',
+                        'resource' => 'box',
+                        'privilege' => 'menu',
+                        'pages' => [
+                            [
+                                'label' => 'Associate Files',
+                                'route' => 'box',
+                                'action' => 'associate',
+                                'resource' => 'box',
+                                'privilege' => 'associate',
+                            ],
+                            [
+                                'label' => 'Reassociate Warrant',
+                                'route' => 'box',
+                                'action' => 'update_warrant',
+                                'resource' => 'box',
+                                'privilege' => 'update_warrant',
+                            ],
+                        ],
+                    ],
                 ],
             ],
             'settings' => [
@@ -168,6 +220,13 @@ return [
                         'resource' => 'application/files',
                         'privilege' => 'upload',
                     ],
+                    [
+                        'label' => 'Box',
+                        'route' => 'box',
+                        'action' => 'config',
+                        'resource' => 'box',
+                        'privilege' => 'config',
+                    ],
                 ],
             ],
         ],
@@ -176,6 +235,15 @@ return [
     'service_manager' => [
         'aliases' => [
             'unitedway-model-adapter' => 'timecard-model-adapter',
+            'model-adapter' => 'timecard-model-adapter',
+        ],
+    ],
+    'view_helpers' => [
+        'aliases' => [
+            'actionmenu' => ActionMenu::class,
+        ],
+        'factories' => [
+            ActionMenu::class => InvokableFactory::class,
         ],
     ],
     'view_manager' => [

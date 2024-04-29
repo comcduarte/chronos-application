@@ -3,26 +3,53 @@ namespace Application\Controller;
 
 use Employee\Model\DepartmentModel;
 use Employee\Model\EmployeeModel;
+use Laminas\Box\API\AccessTokenAwareTrait;
+use Laminas\Box\API\MetadataQuery;
+use Laminas\Box\API\Resource\ClientError;
+use Laminas\Box\API\Resource\File;
+use Laminas\Box\API\Resource\Folder;
+use Laminas\Box\API\Resource\Items;
+use Laminas\Box\API\Resource\MetadataInstance;
+use Laminas\Box\API\Resource\MetadataQuerySearchResults;
 use Laminas\Db\ResultSet\ResultSet;
 use Laminas\Db\Sql\Delete;
 use Laminas\Db\Sql\Select;
 use Laminas\Db\Sql\Sql;
 use Laminas\Db\Sql\Where;
+use Laminas\Log\Logger;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\Validator\Identical;
 use Laminas\View\Model\ViewModel;
 use Leave\Controller\LeaveController;
+use Settings\Model\SettingsModel;
+use Timecard\Model\TimecardLineModel;
+use Timecard\Model\TimecardModel;
+use Timecard\Model\TimecardSignatureModel;
+use Timecard\Model\TimecardStageModel;
+use Timecard\Model\Warrant;
+use Timecard\Model\Entity\TimecardEntity;
 use Exception;
 
 class CronController extends AbstractActionController
 {
+    use AccessTokenAwareTrait;
+    
     public $employee_adapter;
     public $timecard_adapter;
     
+    /**
+     * 
+     * @var Logger
+     */
     public $logger;
     
     public function cronAction()
     {
+        /**
+         * Parse Files Queue Folder
+         */
+        $this->parseFiles();
+        
         $this->forward()->dispatch(LeaveController::class, ['action' => 'cron']);
         
         $view = new ViewModel();
@@ -56,7 +83,7 @@ class CronController extends AbstractActionController
             $resultSet->initialize($results);
         } catch (Exception $e) {
             $messages[] = $e->getMessage();
-            $this->logger->info($e->getMessage());
+            $this->logger->err($e->getMessage());
         }
         
         foreach ($resultSet as $record) {
@@ -99,7 +126,7 @@ class CronController extends AbstractActionController
                         $employee->update();
                     } catch (Exception $e) {
                         $messages[] = $e->getMessage();
-                        $this->logger->info($e->getMessage());
+                        $this->logger->err($e->getMessage());
                     }
                 }
                 
@@ -126,7 +153,7 @@ class CronController extends AbstractActionController
                     $employee->create();
                 } catch (Exception $e) {
                     $messages[] = $e->getMessage();
-                    $this->logger->info($e->getMessage());
+                    $this->logger->err($e->getMessage());
                 }
             }
             
@@ -147,11 +174,245 @@ class CronController extends AbstractActionController
                 $results = $statement->execute();
             } catch (Exception $e) {
                 $messages[] = $e->getMessage();
-                $this->logger->info($e->getMessage());
+                $this->logger->err($e->getMessage());
             }
         }
         
         $view->setVariable('messages', json_encode($messages));
         return $view;
+    }
+
+    /**
+     * Function will read all file names in queue folder (specified) and move to appropriate subfolders,
+     * attaching metadata in the process.
+     */
+    public function parseFiles()
+    {
+        /**
+         * Global Variables
+         */
+        $scope = 'enterprise_563960266';
+        $template_key = 'webappReference';
+        
+        $settings = new SettingsModel($this->timecard_adapter);
+        $settings->read(['MODULE' => 'BOX','SETTING' => 'QUEUE_FOLDER_ID']);
+        $queue_folder_id = $settings->VALUE;
+        
+        $settings->read(['MODULE' => 'BOX','SETTING' => 'APP_FOLDER_ID']);
+        $app_folder_id = $settings->VALUE;
+        
+        $folder = new Folder($this->access_token);
+        
+        /**
+         * Get list of Employee Folders
+         * @var Items $app_items
+         */
+        $app_items = $folder->list_items_in_folder($app_folder_id);
+        
+        /**
+         * Get list of Files in Queue
+         * @var Items $items
+         */
+        $items = $folder->list_items_in_folder($queue_folder_id);
+        foreach ($items->entries as $item) {
+            if ($item['type'] != "file") {
+                /**
+                 * Skip Folders
+                 */
+                continue;
+            }
+            $file = new File($this->access_token);
+            $file->get_file_information($item['id']);
+            
+            $matches = [];
+                        
+            switch(true) {
+                case preg_match('/^CITZ(\d{6})(\d{7})(\d{6})/', $file->name, $matches):
+                    $warrant_num = $matches[1];
+                    $emp_num = $matches[3];
+                    $folder_name = 'PAYSTUBS';
+                    break;
+                case preg_match('/^(W2|1095C)_\d{4}_\d_(\d{6})_\d{9}/', $file->name, $matches):
+                    $folder_name = $matches[1];
+                    $emp_num = $matches[2];
+                    break;
+                default:
+                    continue 2;
+            }
+            
+            /**
+             * Metadata Search
+             * Find employee folder based on employee uuid.
+             */
+            $emp_folder_id = null;
+            
+            $employee = new EmployeeModel($this->employee_adapter);
+            $employee->read(['EMP_NUM' => $emp_num]);
+            
+            $metadata_query = new MetadataQuery($this->access_token);
+            $metadata_query_search_results = $metadata_query->metadata_query(
+                (string) $app_folder_id,
+                'enterprise_563960266.webappReference',
+                "referenceUuid = :uuid",
+                ['uuid' => $employee->UUID],
+                );
+            if ($metadata_query_search_results instanceof ClientError) {
+                /**
+                 * @var ClientError $metadata_query_search_results
+                 */
+                $this->logger->err(sprintf('[%s] %s (%s)', $metadata_query_search_results->status, $metadata_query_search_results->message, $emp_num));
+            } 
+            
+            /**
+             * @var MetadataQuerySearchResults $metadata_query_search_results
+             * @var File|Folder $item
+             */
+            foreach ($metadata_query_search_results->entries as $item) {
+                if ($item['type'] == 'folder' && $item['name'] == $emp_num) {
+                    $emp_folder_id = $item['id'];
+                }
+            }
+            
+            
+            $dest_folder_id = null;
+            if (is_null($emp_folder_id)) {
+                /**
+                 * Create new Employee Folder
+                 */
+                $folder = $folder->create_folder($app_folder_id,$emp_num);
+                $emp_folder_id = $folder->id;
+                
+                $metadata = new MetadataInstance($this->access_token);
+                $data = [
+                    'referenceUuid' => $employee->UUID,
+                ];
+                $result = $metadata->create_metadata_instance_on_folder($emp_folder_id, $scope, $template_key, $data);
+                
+                if ($result instanceof ClientError) {
+                    $this->logger->err(sprintf('[%s] %s (%s)', $result->status, $result->message, $emp_num));
+                }
+                
+                /**
+                 * Create Destination Folder
+                 */
+                $folder = $folder->create_folder($emp_folder_id, $folder_name);
+                $dest_folder_id = $folder->id;
+                
+                $this->logger->info(sprintf('Created folder structure for %s [%s]', $emp_num, $emp_folder_id));
+            } else {
+                $folder = $folder->get_folder_information($emp_folder_id);
+                foreach ($folder->item_collection['entries'] as $x) {
+                    if ($x['name'] == $folder_name) {
+                        $dest_folder_id = $x['id'];
+                        break;
+                    }
+                }
+                
+                if (is_null($dest_folder_id)) {
+                    $folder = $folder->create_folder($emp_folder_id, $folder_name);
+                    $dest_folder_id = $folder->id;
+                    $this->logger->info(sprintf('Created %s folder for %s [%s]', $folder_name, $emp_num, $dest_folder_id));
+                }
+            }
+            
+            /**
+             * Move PDF to Destination folder
+             * @todo file turns into error, delete file if dup
+             */
+            $retval = $file->move_file($file->id, $dest_folder_id);
+            if ($retval instanceof ClientError) {
+                $this->logger->err(sprintf($retval->message . ' [%s]', $emp_num));
+                if ($retval->item_status = '409') {
+                    $file->delete_file($file->id);
+                    $this->logger->info(sprintf('Deleted duplicate file id [%s]', $file->id));
+                }
+                continue;
+            }
+                
+            /**
+             * If a Paystub, find/create Timecard
+             */
+            if ($folder_name == 'PAYSTUBS') {
+                /**
+                 * Assign Metadata Reference
+                 */
+                $warrant = new Warrant($this->timecard_adapter);
+                if (! $warrant->read(['WARRANT_NUM' => $warrant_num])) {
+                    /**
+                     * Leave item in Queue if warrant is not entered.
+                     */
+                    $this->logger->err(sprintf('Unable to retrieve warrant %s.', $warrant_num));
+                    continue;
+                }
+                
+                $timecard = new TimecardEntity();
+                $timecard->setDbAdapter($this->timecard_adapter);
+                $timecard->WORK_WEEK = $warrant->WORK_WEEK;
+                $timecard->EMP_UUID = $employee->UUID;
+                if (! $timecard->getTimecard() ) {
+                    /**
+                     * Original timesheet was never created. Create blank timesheet to reference paystub.
+                     */
+                    $timecard->createTimecard();
+                    $timecard->getTimecard();
+                    
+                    /**
+                     * Complete Timecard
+                     */
+                    $timecard_model = new TimecardModel($this->timecard_adapter);
+                    $timecard_model->read(['UUID' => $timecard->TIMECARD_UUID]);
+                    $timecard_model->STATUS = $timecard_model::COMPLETED_STATUS;
+                    $timecard_model->update();
+                    unset ($timecard_model);
+                    
+                    $line = new TimecardLineModel($this->timecard_adapter);
+                    $line->read(['TIMECARD_UUID' => $timecard->TIMECARD_UUID]);
+                    $line->STATUS = $line::COMPLETED_STATUS;
+                    $line->update();
+                    unset($line);
+                    
+                    
+                    /****************************************
+                     * GET TIMECARD STAGE
+                     ****************************************/
+                    $stage = new TimecardStageModel($this->timecard_adapter);
+                    $stage->read(['SEQUENCE' => TimecardModel::COMPLETED_STATUS]);
+                    
+                    /****************************************
+                     * SET TIMECARD SIGNATURE
+                     ****************************************/
+                    $signature = new TimecardSignatureModel($this->timecard_adapter);
+                    $signature->TIMECARD_UUID = $timecard->TIMECARD_UUID;
+                    $signature->USER_UUID = 'SYSTEM';
+                    $signature->STAGE_UUID = $stage->UUID;
+                    $signature->create();
+                    
+                    $this->logger->info(sprintf('Completed timecard for %s for week ending %s', $emp_num, $warrant->WORK_WEEK));
+                }
+                
+                $data = [
+                    'referenceUuid' => $timecard->TIMECARD_UUID,
+                ];
+            } else {
+                $data = [
+                    'referenceUuid' => $employee->UUID,
+                ];
+            }
+            
+            /**
+             * Create Metadata Instance
+             */
+            $template_key = 'webappReference';
+            
+            $metadata_instance = new MetadataInstance($this->getAccessToken());
+            $retval = $metadata_instance->create_metadata_instance_on_file($file->id, $this->getAccessToken()->box_subject_type . '_' . $this->getAccessToken()->box_subject_id, $template_key, $data);
+            
+            if ($retval instanceof ClientError) {
+                $this->logger->err(sprintf($retval->message . ' [%s] [%s] context-info: %s', $file->name, $emp_num, $retval->context_info));
+            }
+            
+            unset($folder_name);
+            unset($emp_num);
+        }
     }
 }

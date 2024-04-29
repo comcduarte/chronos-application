@@ -81,7 +81,7 @@ class TelestaffImportController extends AbstractConfigController
                         $pc = new PaycodeModel($this->timecard_adapter);
                         $respc = $pc->read(['CODE' => $record[$CODE]]);
                         if (!$respc) {
-                            $this->logger->info("Paycode does not exist: " . $record[$CODE]);
+                            $this->logger->err("Paycode does not exist: " . $record[$CODE]);
                             continue;
                         }
                         
@@ -97,7 +97,7 @@ class TelestaffImportController extends AbstractConfigController
                         if ($result === FALSE) {
                             //-- Unable to Find Employee
                             $this->flashmessenger()->addErrorMessage("Unable to find employee " . $record[$EMID]);
-                            $this->logger->info("Unable to find employee " . $record[$EMID]);
+                            $this->logger->err("Unable to find employee " . $record[$EMID]);
                             continue;
                         } else {
                             //-- Found Employee
@@ -119,7 +119,7 @@ class TelestaffImportController extends AbstractConfigController
                             //-- Do not make modifications to Timecards that have already been submitted, or reviewed. --//
                             $message = sprintf('Timecard for %s already has a status of %s and cannot be updated.', $record[$EMID], TimecardModel::retrieveStatus($timecard->STATUS));
                             $this->flashmessenger()->addErrorMessage($message);
-                            $this->logger->info($message);
+                            $this->logger->err($message);
                             continue;
                         }
                         
