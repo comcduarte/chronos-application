@@ -1,9 +1,9 @@
 <?php
 namespace Application\Controller\Factory;
 
-use Psr\Container\ContainerInterface;
-use Laminas\ServiceManager\Factory\FactoryInterface;
 use Application\Controller\TelestaffImportController;
+use Laminas\ServiceManager\Factory\FactoryInterface;
+use Psr\Container\ContainerInterface;
 
 class TelestaffImportControllerFactory implements FactoryInterface
 {

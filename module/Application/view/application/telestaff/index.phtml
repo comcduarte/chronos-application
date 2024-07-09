@@ -1,3 +1,6 @@
+<a href="<?=$this->url($this->route, ['action'=>'clear'])?>" class="btn btn-danger">Truncate Database Tables</a>
+<a href="<?=$this->url($this->route, ['action'=>'create'])?>" class="btn btn-primary">Populate Database Tables</a>
+<hr>
 <div class="row">
 	<div class="col">
 		<div class="card mb-4">
@@ -8,13 +11,109 @@
         	</div>
         	<div class="card-body">
         		<?php 
-        		$this->importForm->prepare();
-        		$this->importForm->setAttribute('action', $this->url('application/telestaff-import', ['action' => 'import']));
-        		echo $this->form()->openTag($this->importForm); 
-        		echo $this->formCollection($this->importForm);
-        		echo $this->form()->closeTag($this->importForm);
+        		$this->uploadForm->prepare();
+        		$this->uploadForm->setAttribute('action', $this->url('application/telestaff-import', ['action' => 'upload']));
+        		echo $this->form()->openTag($this->uploadForm); 
+        		echo $this->formCollection($this->uploadForm);
+        		echo $this->form()->closeTag($this->uploadForm);
         		?>
         	</div>
 		</div>
 	</div>
+	<div class='col'>
+		<div class="card mb-4">
+			<div class="card-header d-flex justify-content-between">
+        		<div>
+        			<b>Telestaff Flush</b><span class="badge text-bg-primary mx-2"><?=$total?></span>
+        		</div>
+        	</div>
+        	<div class="card-body">
+        		<p class='card-text'>Flushing will empty the temporary table and allow you to re-upload the export from Telestaff.
+        		<?php 
+        		$this->flushForm->prepare();
+        		echo $this->form()->openTag($this->flushForm); 
+        		echo $this->formCollection($this->flushForm);
+        		echo $this->form()->closeTag($this->flushForm);
+        		?>
+        	</div>
+		</div>
+	</div>
+	<div class='col'>
+		<div class="card mb-4">
+			<div class="card-header d-flex justify-content-between">
+        		<div>
+        			<b>Telestaff Process</b>
+        		</div>
+        	</div>
+        	<div class="card-body">
+        		<div class="progress">
+                  <div id="PROCESS-PROGRESS" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div>
+                </div>
+                <input class='btn btn-primary mt-2' type='SUBMIT' id='BEGIN-PROCESS' name='BEGIN-PROCESS' value='Process'>
+        	</div>
+		</div>
+	</div>
+	<div class='col'>
+		<div class="card mb-4">
+			<div class="card-header d-flex justify-content-between">
+        		<div>
+        			<b>Telestaff Import</b>
+        		</div>
+        	</div>
+        	<div class="card-body">
+        		<div class="progress">
+                  <div id="IMPORT-PROGRESS" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div>
+                </div>
+                <input class='btn btn-primary mt-2' type='SUBMIT' id='BEGIN-IMPORT' name='BEGIN-IMPORT' value='Import'>
+        	</div>
+		</div>
+	</div>
 </div>
+<div class="row">
+	<div class="col">
+		<div class="col"><?php echo $this->subtable(['title' => 'Invalid Records','params' => [],'primary_key' => 'UUID', 'data' => $errors, 'help' => $this->help_leave]); ?></div>
+	</div>
+</div>
+<script type="text/javascript">
+var count = 1;
+var total = <?=$total?>;
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function api(x, y) {
+    while (count > 0) {
+        await delay(100);
+        fetch('https://chronos.dev.local/application/telestaff/' + x)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+            return response.json(); // or .text() or .blob() etc. based on your response type
+          })
+          .then(data => {
+            console.log(data); // Process the JSON response
+            count = data.count;
+            
+            var percentage = ((total - count)/total)*100;
+            document.getElementById(y).setAttribute('style','width: ' + percentage + '%');
+          })
+          .catch(error => {
+            console.error('There was a problem with the fetch operation:', error);
+            count = 0;
+          });
+    }
+}
+
+jQuery(function($) {
+    $('#BEGIN-PROCESS').on('click', function(event) {
+    	event.preventDefault();
+    	api('process', 'PROCESS-PROGRESS');
+    });
+    
+    $('#BEGIN-IMPORT').on('click', function(event) {
+    	event.preventDefault();
+    	api('import', 'IMPORT-PROGRESS');
+    });
+});
+</script>
+
