@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 1.1.3
+- Updated utility for Telestaff Import
+
 ## 1.1.2
 - Remove restrictions on negative leave balances.
 
