@@ -31,6 +31,7 @@
         		<p class='card-text'>Flushing will empty the temporary table and allow you to re-upload the export from Telestaff.
         		<?php 
         		$this->flushForm->prepare();
+        		$this->flushForm->setAttribute('action', $this->url('application/telestaff-import', ['action' => 'flush']));
         		echo $this->form()->openTag($this->flushForm); 
         		echo $this->formCollection($this->flushForm);
         		echo $this->form()->closeTag($this->flushForm);

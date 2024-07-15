@@ -70,7 +70,6 @@ class TelestaffImportController extends AbstractConfigController
                 'value' => 'Flush',
             ],
         ]);
-        $flush->setAttribute('action', 'https://chronos.dev.local/application/telestaff/flush');
         $view->setVariable('flushForm', $flush);
         
         /**
