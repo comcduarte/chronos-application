@@ -78,13 +78,15 @@
 <script type="text/javascript">
 var count = 1;
 var total = <?=$total?>;
+var host = window.location.host;
 
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 async function api(x, y) {
     while (count > 0) {
         await delay(100);
-        fetch('https://chronos.dev.local/application/telestaff/' + x)
+        
+        fetch('https://' + host + '/application/telestaff/' + x)
           .then(response => {
             if (!response.ok) {
               throw new Error('Network response was not ok');
