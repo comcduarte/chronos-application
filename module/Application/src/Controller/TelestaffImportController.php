@@ -229,9 +229,7 @@ class TelestaffImportController extends AbstractConfigController
              * Convert 8.5 hours to 8 hours
              */
             case $object->HOUR == '8.5':
-                if ($object->CODE == '001') {
-                    $object->HOUR = 8;
-                }
+                $object->HOUR = 8;
                 $object->STATUS = TelestaffModel::VALID_STATUS;
                 break;
             default:
