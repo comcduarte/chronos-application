@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ## 1.1.3
 - Updated utility for Telestaff Import
+- Correct Mobile Dashboard View Action Buttons
 
 ## 1.1.2
 - Remove restrictions on negative leave balances.
